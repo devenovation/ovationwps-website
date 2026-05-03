@@ -4,11 +4,17 @@
 /node_modules
 /.pnp
 .pnp.*
+/.pnpm-store
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
+# editor / tooling
+/.claude
+/.idea
+/.vscode
 
 # testing
 /coverage

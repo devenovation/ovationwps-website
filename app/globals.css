@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-red: #c81e1e;
+  --color-brand-red-dark: #a01515;
+  --color-brand-red-light: #f9ecec;
+  --color-brand-red-soft: #f87171;
+  --color-brand-red-pale: #fca5a5;
+  --color-navy: #0f1626;
+  --color-navy-mid: #162033;
+  --color-navy-deep: #070c1a;
+  --color-ink-100: #f6f7f9;
+  --color-ink-200: #eaecf0;
+  --color-ink-500: #6b7280;
+  --color-ink-700: #374151;
+
+  --radius-card: 12px;
+  --radius-card-lg: 20px;
+
+  --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --shadow-floating: 0 16px 48px rgba(0, 0, 0, 0.13);
+
+  --animate-pulse-dot: pulse-dot 2s infinite;
+  --animate-ticker: ticker 22s linear infinite;
+
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
   }
 }
 
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility bg-stripe-w {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(255, 255, 255, 0.045) 6px,
+    rgba(255, 255, 255, 0.045) 7px
+  );
+}
+
+@utility bg-stripe-r {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 6px,
+    rgba(200, 30, 30, 0.065) 6px,
+    rgba(200, 30, 30, 0.065) 7px
+  );
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: 84px;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  color: #1a1a2e;
+  background: #fff;
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  color: #f6f7f9;
+  background: #070c1a;
+}
+
+.dark ::selection {
+  background: rgba(200, 30, 30, 0.45);
+  color: #fff;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
