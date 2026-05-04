@@ -325,6 +325,7 @@ export type Founder = {
   title: string;
   bio: string;
   tags: string[];
+  linkedinUrl?: string;
 };
 
 export const FOUNDERS: Founder[] = [
@@ -335,6 +336,7 @@ export const FOUNDERS: Founder[] = [
     title: "Chief Executive Officer",
     bio: "A 30+ year veteran of the global IT services industry, Mohit has held senior executive roles spanning technology sourcing, infrastructure delivery, and client acquisition. As CEO, he architects Ovation's growth strategy and operational model, drawing on deep relationships with Fortune 500 clients and tier-1 systems integrators worldwide.",
     tags: ["30+ Years IT Services", "Infrastructure", "Global Operations"],
+    linkedinUrl: "https://www.linkedin.com/in/mohitmanchanda/",
   },
   {
     initials: "SM",
@@ -343,6 +345,7 @@ export const FOUNDERS: Founder[] = [
     title: "President & CFO",
     bio: "A serial entrepreneur and finance executive, Sameer previously grew UK WEST INC from seed-stage to 700+ employees worldwide. As co-founder of TopHat Capital, he oversaw $600M+ in capital raises and M&A transactions. At Ovation, Sameer drives financial strategy, business development, and corporate partnerships.",
     tags: ["Investment Banking", "$600M+ Capital", "Entrepreneurship"],
+    linkedinUrl: "https://www.linkedin.com/in/sameermittal/",
   },
   {
     initials: "NG",
@@ -351,6 +354,7 @@ export const FOUNDERS: Founder[] = [
     title: "Chief Revenue Officer",
     bio: "Nitin brings distinguished sales and revenue leadership experience from Barrister Global Services Network and DecisionOne, where he served as VP of Sales driving enterprise IT services growth across North America. As CRO, he leads Ovation's go-to-market strategy, enterprise sales, and strategic account management.",
     tags: ["Enterprise Sales", "Revenue Growth", "IT Services"],
+    linkedinUrl: "https://www.linkedin.com/in/nitingrover/",
   },
 ];
 
