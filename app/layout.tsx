@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   title: "Ovation Workplace Services | IT Workforce & Managed Solutions",
   description:
     "From break/fix field services to enterprise dispatch management, Ovation delivers skilled technicians, seamless logistics, and proven SLA compliance — across every timezone, at every scale.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   keywords: [
     "IT services",
     "break fix",
