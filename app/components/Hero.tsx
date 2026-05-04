@@ -50,6 +50,7 @@ export default function Hero() {
     let raf = 0;
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
+      const isDark = document.documentElement.classList.contains("dark");
 
       nodes.forEach((n) => {
         n.x += n.vx;
@@ -76,7 +77,9 @@ export default function Hero() {
             ctx.lineTo(b.x, b.y);
             ctx.strokeStyle = isRed
               ? `rgba(200,30,30,${alpha * 1.6})`
-              : `rgba(100,140,200,${alpha})`;
+              : isDark
+                ? `rgba(100,140,200,${alpha})`
+                : `rgba(30,55,110,${alpha * 1.4})`;
             ctx.lineWidth = 0.7;
             ctx.stroke();
           }
@@ -90,7 +93,9 @@ export default function Hero() {
         ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
         ctx.fillStyle = n.isRed
           ? `rgba(200,30,30,${0.6 + pulseFactor * 0.4})`
-          : `rgba(120,170,255,${0.35 + pulseFactor * 0.25})`;
+          : isDark
+            ? `rgba(120,170,255,${0.35 + pulseFactor * 0.25})`
+            : `rgba(30,60,120,${0.35 + pulseFactor * 0.25})`;
         ctx.fill();
         if (n.isRed && pulseFactor > 0.7) {
           ctx.beginPath();
@@ -116,22 +121,23 @@ export default function Hero() {
       id="hero"
       className="relative flex min-h-screen items-center overflow-hidden pt-16"
     >
-      <div className="absolute inset-0 z-0 bg-[#070c1a]">
+      <div className="absolute inset-0 z-0 bg-white dark:bg-[#070c1a]">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       </div>
-      <div className="bg-stripe-w absolute inset-0 z-[1] opacity-55" />
-      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-[rgba(7,12,26,0.78)] via-[rgba(7,12,26,0.55)] to-[rgba(7,12,26,0.38)]" />
+      <div className="bg-stripe-r absolute inset-0 z-[1] opacity-40 dark:hidden" />
+      <div className="bg-stripe-w absolute inset-0 z-[1] opacity-55 hidden dark:block" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-white/85 via-white/60 to-white/30 dark:from-[rgba(7,12,26,0.78)] dark:via-[rgba(7,12,26,0.55)] dark:to-[rgba(7,12,26,0.38)]" />
       <div className="absolute bottom-0 left-0 right-0 z-[2] h-[3px] bg-gradient-to-r from-brand-red to-transparent" />
       <div className="relative z-[3] mx-auto w-full max-w-[1160px] px-7">
         <div className="grid items-center gap-[60px] py-[100px] pb-[84px] lg:grid-cols-[1.15fr_0.85fr] max-lg:gap-10 max-md:py-[60px] max-md:pb-12">
           <div>
-            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-brand-red/35 bg-brand-red/20 py-1.5 pl-2.5 pr-3.5">
-              <div className="h-2 w-2 animate-pulse-dot rounded-full bg-brand-red-soft" />
-              <span className="text-[0.73rem] font-bold uppercase tracking-[0.08em] text-brand-red-pale">
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-brand-red/35 bg-brand-red/15 py-1.5 pl-2.5 pr-3.5 dark:bg-brand-red/20">
+              <div className="h-2 w-2 animate-pulse-dot rounded-full bg-brand-red dark:bg-brand-red-soft" />
+              <span className="text-[0.73rem] font-bold uppercase tracking-[0.08em] text-brand-red dark:text-brand-red-pale">
                 Global IT Workforce Partner
               </span>
             </div>
-            <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.03em] text-white">
+            <h1 className="mb-6 text-[clamp(2.4rem,5.5vw,4rem)] font-black leading-[1.08] tracking-[-0.03em] text-navy dark:text-white">
               Powering the
               <br />
               <span className="text-brand-red">World&rsquo;s Most</span>
@@ -140,7 +146,7 @@ export default function Hero() {
               <br />
               Operations
             </h1>
-            <p className="mb-10 max-w-[520px] text-[1.08rem] leading-[1.8] text-white/70">
+            <p className="mb-10 max-w-[520px] text-[1.08rem] leading-[1.8] text-ink-500 dark:text-white/70">
               From break/fix field services to enterprise dispatch management, Ovation delivers
               skilled technicians, seamless logistics, and proven SLA compliance — across every
               timezone, at every scale.
@@ -164,7 +170,7 @@ export default function Hero() {
               {HERO_TRUST_ITEMS.map((label) => (
                 <div
                   key={label}
-                  className="flex items-center gap-2 text-[0.78rem] font-medium text-white/55"
+                  className="flex items-center gap-2 text-[0.78rem] font-medium text-ink-500 dark:text-white/55"
                 >
                   <div className="h-1.5 w-1.5 rounded-full bg-brand-red" />
                   {label}
@@ -176,17 +182,17 @@ export default function Hero() {
             {HERO_PROOF_CARDS.map((c, i) => (
               <div
                 key={c.title}
-                className="group relative overflow-hidden rounded-card-lg border border-white/10 bg-white/5 px-6 py-5 backdrop-blur-md transition-all duration-300 hover:translate-x-1 hover:bg-white/10"
+                className="group relative overflow-hidden rounded-card-lg border border-ink-200 bg-white px-6 py-5 shadow-soft transition-all duration-300 hover:translate-x-1 hover:shadow-floating dark:border-white/10 dark:bg-white/5 dark:shadow-none dark:backdrop-blur-md dark:hover:bg-white/10"
                 style={{ transitionDelay: `${i * 0.1}s` }}
               >
                 <span className="pointer-events-none absolute left-0 right-0 top-0 h-0.5 bg-gradient-to-r from-brand-red to-transparent" />
                 <div className="mb-2.5 flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-brand-red/25 [&>svg]:h-[18px] [&>svg]:w-[18px] [&>svg]:text-brand-red-soft">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] bg-brand-red-light [&>svg]:h-[18px] [&>svg]:w-[18px] [&>svg]:text-brand-red dark:bg-brand-red/25 dark:[&>svg]:text-brand-red-soft">
                     {c.icon}
                   </div>
-                  <h4 className="text-[0.88rem] font-bold text-white">{c.title}</h4>
+                  <h4 className="text-[0.88rem] font-bold text-navy dark:text-white">{c.title}</h4>
                 </div>
-                <p className="text-[0.8rem] leading-[1.55] text-white/55">{c.body}</p>
+                <p className="text-[0.8rem] leading-[1.55] text-ink-500 dark:text-white/55">{c.body}</p>
               </div>
             ))}
           </div>
