@@ -9,7 +9,8 @@ export default function BrandMark() {
         width={168}
         height={34}
         priority
-        className="h-[34px] w-auto select-none"
+        style={{ height: "34px", width: "auto" }}
+        className="select-none"
       />
     </span>
   );

@@ -1,4 +1,5 @@
 import { FOUNDERS } from "../constants";
+import Image from "next/image";
 
 export default function Leadership() {
   return (
@@ -23,12 +24,26 @@ export default function Leadership() {
               key={f.name}
               className="group overflow-hidden rounded-card-lg border border-ink-200 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-floating dark:border-white/10 dark:bg-white/5 dark:hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)]"
             >
-              <div className="relative flex h-[230px] items-center justify-center overflow-hidden bg-navy">
-                <div className="bg-stripe-w pointer-events-none absolute inset-0 opacity-60" />
-                <div className="relative z-[1] flex h-[84px] w-[84px] items-center justify-center rounded-full border-[3px] border-brand-red/50 bg-brand-red/30 text-[1.7rem] font-black text-white">
-                  {f.initials}
-                </div>
-                <div className="absolute inset-x-0 bottom-0 z-[2] bg-gradient-to-t from-[rgba(10,14,30,0.92)] to-transparent px-5 pb-3.5 pt-7">
+              <div className="relative flex h-[320px] items-center justify-center overflow-hidden bg-navy">
+                {f.imageSrc ? (
+                  <Image
+                    src={f.imageSrc}
+                    alt={f.name}
+                    fill
+                    quality={95}
+                    className="object-cover object-top select-none"
+                    sizes="(min-width: 1024px) 360px, (min-width: 768px) 50vw, 100vw"
+                    priority
+                  />
+                ) : (
+                  <>
+                    <div className="bg-stripe-w pointer-events-none absolute inset-0 opacity-60" />
+                    <div className="relative z-[1] flex h-[120px] w-[120px] items-center justify-center rounded-full border-[3px] border-brand-red/50 bg-brand-red/30 text-[2.2rem] font-black text-white">
+                      {f.initials}
+                    </div>
+                  </>
+                )}
+                <div className="absolute inset-x-0 bottom-0 z-[2] bg-gradient-to-t from-[rgba(10,14,30,0.95)] via-[rgba(10,14,30,0.65)] to-transparent px-5 pb-4 pt-10">
                   <h3 className="text-base font-extrabold text-white">{f.name}</h3>
                   <span className="text-[0.75rem] font-semibold uppercase tracking-[0.04em] text-brand-red-soft">
                     {f.title}

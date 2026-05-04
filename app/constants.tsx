@@ -320,6 +320,7 @@ export const DEPOT_CAPABILITIES: { strong: string; rest: string }[] = [
 
 export type Founder = {
   initials: string;
+  imageSrc?: string;
   name: string;
   title: string;
   bio: string;
@@ -329,6 +330,7 @@ export type Founder = {
 export const FOUNDERS: Founder[] = [
   {
     initials: "MM",
+    imageSrc: "/Mohit%20Manchanda.jpg",
     name: "Mohit Manchanda",
     title: "Chief Executive Officer",
     bio: "A 30+ year veteran of the global IT services industry, Mohit has held senior executive roles spanning technology sourcing, infrastructure delivery, and client acquisition. As CEO, he architects Ovation's growth strategy and operational model, drawing on deep relationships with Fortune 500 clients and tier-1 systems integrators worldwide.",
@@ -336,6 +338,7 @@ export const FOUNDERS: Founder[] = [
   },
   {
     initials: "SM",
+    imageSrc: "/sameer.jpg",
     name: "Sameer Mittal",
     title: "President & CFO",
     bio: "A serial entrepreneur and finance executive, Sameer previously grew UK WEST INC from seed-stage to 700+ employees worldwide. As co-founder of TopHat Capital, he oversaw $600M+ in capital raises and M&A transactions. At Ovation, Sameer drives financial strategy, business development, and corporate partnerships.",
@@ -343,6 +346,7 @@ export const FOUNDERS: Founder[] = [
   },
   {
     initials: "NG",
+    imageSrc: "/Nithin.jpg",
     name: "Nitin Grover",
     title: "Chief Revenue Officer",
     bio: "Nitin brings distinguished sales and revenue leadership experience from Barrister Global Services Network and DecisionOne, where he served as VP of Sales driving enterprise IT services growth across North America. As CRO, he leads Ovation's go-to-market strategy, enterprise sales, and strategic account management.",
