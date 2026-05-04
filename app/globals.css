@@ -3,11 +3,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-brand-red: #c81e1e;
-  --color-brand-red-dark: #a01515;
-  --color-brand-red-light: #f9ecec;
-  --color-brand-red-soft: #f87171;
-  --color-brand-red-pale: #fca5a5;
+  --color-brand-red: #B30920;
+  --color-brand-red-dark: #8A0719;
+  --color-brand-red-light: #FBE8EB;
+  --color-brand-red-soft: #E84A5F;
+  --color-brand-red-pale: #F4A0AC;
   --color-navy: #0f1626;
   --color-navy-mid: #162033;
   --color-navy-deep: #070c1a;
@@ -64,8 +64,8 @@
     -45deg,
     transparent,
     transparent 6px,
-    rgba(200, 30, 30, 0.065) 6px,
-    rgba(200, 30, 30, 0.065) 7px
+    rgba(179, 9, 32, 0.065) 6px,
+    rgba(179, 9, 32, 0.065) 7px
   );
 }
 
@@ -92,7 +92,7 @@ body {
 }
 
 .dark ::selection {
-  background: rgba(200, 30, 30, 0.45);
+  background: rgba(179, 9, 32, 0.45);
   color: #fff;
 }
 

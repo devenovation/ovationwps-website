@@ -76,7 +76,7 @@ export default function Hero() {
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
             ctx.strokeStyle = isRed
-              ? `rgba(200,30,30,${alpha * 1.6})`
+              ? `rgba(179,9,32,${alpha * 1.6})`
               : isDark
                 ? `rgba(100,140,200,${alpha})`
                 : `rgba(30,55,110,${alpha * 1.4})`;
@@ -92,7 +92,7 @@ export default function Hero() {
         ctx.beginPath();
         ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
         ctx.fillStyle = n.isRed
-          ? `rgba(200,30,30,${0.6 + pulseFactor * 0.4})`
+          ? `rgba(179,9,32,${0.6 + pulseFactor * 0.4})`
           : isDark
             ? `rgba(120,170,255,${0.35 + pulseFactor * 0.25})`
             : `rgba(30,60,120,${0.35 + pulseFactor * 0.25})`;
@@ -100,7 +100,7 @@ export default function Hero() {
         if (n.isRed && pulseFactor > 0.7) {
           ctx.beginPath();
           ctx.arc(n.x, n.y, r * 2.5, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(200,30,30,${(pulseFactor - 0.7) * 0.15})`;
+          ctx.strokeStyle = `rgba(179,9,32,${(pulseFactor - 0.7) * 0.15})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -154,7 +154,7 @@ export default function Hero() {
             <div className="flex flex-wrap gap-3.5">
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-red px-7 py-3.5 text-[0.95rem] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-red-dark hover:shadow-[0_8px_24px_rgba(200,30,30,0.35)]"
+                className="inline-flex items-center gap-2 rounded-lg bg-brand-red px-7 py-3.5 text-[0.95rem] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-red-dark hover:shadow-[0_8px_24px_rgba(179,9,32,0.35)]"
               >
                 {ArrowRightIcon}
                 Start a Conversation

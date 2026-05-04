@@ -8,7 +8,7 @@ import {
 } from "../constants";
 
 const inputClass =
-  "rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.9rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(200,30,30,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:focus:border-brand-red-soft dark:focus:shadow-[0_0_0_3px_rgba(248,113,113,0.18)]";
+  "rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.9rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(179,9,32,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:focus:border-brand-red-soft dark:focus:shadow-[0_0_0_3px_rgba(232,74,95,0.18)]";
 
 const labelClass = "text-[0.82rem] font-semibold text-ink-700 dark:text-white/75";
 const fieldClass = "mb-4 flex flex-col gap-1.5";
@@ -133,7 +133,7 @@ export default function Contact() {
             </div>
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-red px-7 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-red-dark hover:shadow-[0_8px_24px_rgba(200,30,30,0.35)]"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-red px-7 py-3.5 text-base font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-red-dark hover:shadow-[0_8px_24px_rgba(179,9,32,0.35)]"
             >
               {submitted ? (
                 "Message Sent — We'll be in touch"
