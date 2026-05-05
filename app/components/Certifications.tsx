@@ -20,19 +20,27 @@ export default function Certifications() {
             practices at every level of service delivery.
           </p>
         </div>
-        <div className="flex flex-wrap items-stretch justify-center gap-6">
+        <div className="mx-auto grid max-w-[980px] gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {CERTS.map((c) => (
             <div
               key={c.title}
-              className="flex min-w-[190px] max-w-[220px] flex-col items-center gap-3.5 rounded-card-lg border border-ink-200 bg-white px-8 py-7 text-center transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-soft dark:border-white/10 dark:bg-white/5 dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+              className="group relative flex flex-col items-center gap-4 overflow-hidden rounded-card-lg border border-ink-200 bg-white px-7 pb-7 pt-9 text-center transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-floating dark:border-white/10 dark:bg-white/5 dark:hover:shadow-[0_16px_48px_rgba(0,0,0,0.4)]"
             >
+              <div className="absolute inset-x-0 top-0 h-[3px] bg-brand-red opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div
-                className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-[1.4rem] ${c.badgeBg}`}
+                className={`flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full ring-8 transition-transform duration-300 group-hover:scale-105 ${c.iconBg} ${c.ringColor} [&>svg]:h-8 [&>svg]:w-8 ${c.iconColor}`}
               >
-                {c.emoji}
+                {c.icon}
               </div>
-              <h4 className="text-[0.88rem] font-bold text-navy dark:text-white">{c.title}</h4>
-              <p className="text-[0.78rem] leading-[1.5] text-ink-500 dark:text-white/60">{c.desc}</p>
+              <span className="rounded-full border border-ink-200 bg-ink-100 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.13em] text-ink-700 dark:border-white/15 dark:bg-white/10 dark:text-white/70">
+                {c.label}
+              </span>
+              <h4 className="text-[1rem] font-extrabold tracking-[-0.01em] text-navy dark:text-white">
+                {c.title}
+              </h4>
+              <p className="text-[0.82rem] leading-[1.6] text-ink-500 dark:text-white/60">
+                {c.desc}
+              </p>
             </div>
           ))}
         </div>

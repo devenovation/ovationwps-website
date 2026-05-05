@@ -9,22 +9,24 @@ export default function Depot() {
       <div className="bg-stripe-r pointer-events-none absolute inset-0 opacity-30 dark:hidden" />
       <div className="bg-stripe-w pointer-events-none absolute inset-0 opacity-30 hidden dark:block" />
       <div className="relative z-[1] mx-auto max-w-[1160px] px-7">
+        <div className="mx-auto mb-14 max-w-[600px] text-center">
+          <span className="mb-3 inline-block text-[0.72rem] font-bold uppercase tracking-[0.13em] text-brand-red dark:text-brand-red-soft">
+            Depot Services
+          </span>
+          <h2 className="text-[clamp(1.8rem,3.5vw,2.65rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-navy dark:text-white">
+            End-to-End Hardware
+            <br />
+            Lifecycle Management
+          </h2>
+          <p className="mx-auto mt-3.5 max-w-[560px] text-[1.05rem] leading-[1.75] text-ink-500 dark:text-white/60">
+            Our dedicated depot facility provides comprehensive hardware staging, repair, and
+            recovery services — a single accountable partner from asset intake to final
+            deployment.
+          </p>
+        </div>
         <div className="grid items-start gap-[72px] lg:grid-cols-2 max-lg:gap-12">
           <div>
-            <span className="mb-3 inline-block text-[0.72rem] font-bold uppercase tracking-[0.13em] text-brand-red dark:text-brand-red-soft">
-              Depot Services
-            </span>
-            <h2 className="text-[clamp(1.8rem,3.5vw,2.65rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-navy dark:text-white">
-              End-to-End Hardware
-              <br />
-              Lifecycle Management
-            </h2>
-            <p className="mt-3.5 max-w-[460px] text-[1.05rem] leading-[1.75] text-ink-500 dark:text-white/60">
-              Our dedicated depot facility provides comprehensive hardware staging, repair, and
-              recovery services — a single accountable partner from asset intake to final
-              deployment.
-            </p>
-            <div className="mt-9 flex flex-col gap-3.5">
+            <div className="flex flex-col gap-3.5">
               {DEPOT_ITEMS.map((it) => (
                 <div
                   key={it.title}

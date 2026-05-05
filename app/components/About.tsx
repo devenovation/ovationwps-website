@@ -6,22 +6,24 @@ export default function About() {
       <div className="bg-stripe-r pointer-events-none absolute inset-0 opacity-30 dark:hidden" />
       <div className="bg-stripe-w pointer-events-none absolute inset-0 opacity-35 hidden dark:block" />
       <div className="relative z-[1] mx-auto max-w-[1160px] px-7">
+        <div className="mx-auto mb-14 max-w-[600px] text-center">
+          <span className="mb-3 inline-block text-[0.72rem] font-bold uppercase tracking-[0.13em] text-brand-red dark:text-brand-red-soft">
+            Who We Are
+          </span>
+          <h2 className="text-[clamp(1.8rem,3.5vw,2.65rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-navy dark:text-white">
+            A Minority-Owned Enterprise
+            <br />
+            with Global Scale
+          </h2>
+          <p className="mx-auto mt-3.5 max-w-[560px] text-[1.05rem] leading-[1.75] text-ink-500 dark:text-white/60">
+            Founded by technology industry veterans, Ovation has grown from a focused staffing
+            firm into a true global IT services partner — serving Fortune 500 enterprises, tier-1
+            SIs, and public sector organisations across six continents.
+          </p>
+        </div>
         <div className="grid items-center gap-20 lg:grid-cols-2 max-lg:gap-12">
           <div>
-            <span className="mb-3 inline-block text-[0.72rem] font-bold uppercase tracking-[0.13em] text-brand-red dark:text-brand-red-soft">
-              Who We Are
-            </span>
-            <h2 className="text-[clamp(1.8rem,3.5vw,2.65rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-navy dark:text-white">
-              A Minority-Owned Enterprise
-              <br />
-              with Global Scale
-            </h2>
-            <p className="mt-3.5 max-w-[480px] text-[1.05rem] leading-[1.75] text-ink-500 dark:text-white/60">
-              Founded by technology industry veterans, Ovation has grown from a focused staffing
-              firm into a true global IT services partner — serving Fortune 500 enterprises, tier-1
-              SIs, and public sector organisations across six continents.
-            </p>
-            <div className="mt-9 flex flex-col gap-5">
+            <div className="flex flex-col gap-5">
               {ABOUT_FEATURES.map((f) => (
                 <div
                   key={f.title}

@@ -358,24 +358,62 @@ export const FOUNDERS: Founder[] = [
   },
 ];
 
-export type Cert = { badgeBg: string; emoji: string; title: string; desc: string };
+const IconAward = (
+  <svg {...svgProps}>
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.5 12.8 17 22l-5-3-5 3 1.5-9.2" />
+  </svg>
+);
+
+const IconShieldCheck = (
+  <svg {...svgProps}>
+    <path d="M12 2 4 5v7c0 5 3.4 9.2 8 10 4.6-.8 8-5 8-10V5l-8-3z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
+const IconBadgeCheck = (
+  <svg {...svgProps}>
+    <path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l1.5 3.5L2 16l3.5 1L6 20.5 9.5 20 12 22.5 14.5 20l3.5.5.5-3.5L22 16l-1.5-3.5L22 9l-3.5-1.5L18 4l-3.5.5L12 2z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+
+export type Cert = {
+  iconBg: string;
+  iconColor: string;
+  ringColor: string;
+  icon: ReactNode;
+  label: string;
+  title: string;
+  desc: string;
+};
 
 export const CERTS: Cert[] = [
   {
-    badgeBg: "bg-[#ebf5fb]",
-    emoji: "\u{1F3C5}",
+    iconBg: "bg-[#ebf5fb] dark:bg-[#1e3a8a]/30",
+    iconColor: "text-[#1d4ed8] dark:text-[#93c5fd]",
+    ringColor: "ring-[#1d4ed8]/15 dark:ring-[#93c5fd]/20",
+    icon: IconAward,
+    label: "Quality",
     title: "ISO 9001:2015",
     desc: "Quality Management System — certified processes for consistent, client-centric service delivery across all operations.",
   },
   {
-    badgeBg: "bg-[#eaf7f0]",
-    emoji: "\u{1F512}",
+    iconBg: "bg-[#eaf7f0] dark:bg-[#065f46]/30",
+    iconColor: "text-[#047857] dark:text-[#6ee7b7]",
+    ringColor: "ring-[#047857]/15 dark:ring-[#6ee7b7]/20",
+    icon: IconShieldCheck,
+    label: "Security",
     title: "ISO 27001:2022",
     desc: "Information Security Management — enterprise-grade data protection protocols, access controls, and security governance.",
   },
   {
-    badgeBg: "bg-[#fef9e7]",
-    emoji: "⭐",
+    iconBg: "bg-[#fef9e7] dark:bg-[#854d0e]/30",
+    iconColor: "text-[#b45309] dark:text-[#fcd34d]",
+    ringColor: "ring-[#b45309]/15 dark:ring-[#fcd34d]/20",
+    icon: IconBadgeCheck,
+    label: "Diversity",
     title: "MBE Certified",
     desc: "Minority Business Enterprise — verified diverse supplier helping clients meet and exceed supplier diversity commitments.",
   },
