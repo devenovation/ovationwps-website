@@ -137,11 +137,12 @@ export const ArrowRightIcon = (
 );
 
 export const NAV_LINKS = [
-  { href: "#about", label: "About" },
-  { href: "#founders", label: "Leadership" },
-  { href: "#services", label: "Services" },
-  { href: "#depot", label: "Depot" },
-  { href: "#certifications", label: "Certifications" },
+  { href: "/#about", label: "About" },
+  { href: "/#founders", label: "Leadership" },
+  { href: "/#services", label: "Services" },
+  { href: "/#depot", label: "Depot" },
+  { href: "/#certifications", label: "Certifications" },
+  { href: "/careers", label: "Careers" },
 ];
 
 export const HERO_TRUST_ITEMS = [
@@ -475,4 +476,79 @@ export const FOOTER_COPYRIGHT = "© 2026 Ovation Workplace Services. All rights 
 export const COMPANY = {
   name: "Ovation",
   fullName: "Ovation Workplace Services",
+};
+
+export const CAREERS_HERO_IMAGE =
+  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80";
+
+export const CAREERS_HERO_LOCATIONS = [
+  "Hyderabad",
+  "Plano, TX",
+  "Remote · 44+ countries",
+];
+
+export const CAREERS_LIFE: { step: string; title: string; body: string }[] = [
+  {
+    step: "01",
+    title: "Volunteer Days",
+    body: "Every Ovation teammate gets 16 paid hours per year to volunteer with causes that matter to them.",
+  },
+  {
+    step: "02",
+    title: "Ovation Cares Month",
+    body: "Each March we run a company-wide month of giving — drives, hackathons, and community partnerships.",
+  },
+  {
+    step: "03",
+    title: "In-person Gatherings",
+    body: "Distributed by default — but we fly teams together for annual summits, regional meetups, and project kickoffs.",
+  },
+  {
+    step: "04",
+    title: "Community Giving",
+    body: "Long-running partnerships with local nonprofits in every region we operate, matched by company donations.",
+  },
+  {
+    step: "05",
+    title: "Diversity & Inclusion",
+    body: "MBE-certified workplace with active ERGs and a leadership team that reflects the 44 countries we serve.",
+  },
+];
+
+export const CAREERS_GALLERY: { src: string; alt: string; tall?: boolean }[] = [
+  {
+    src: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=900&q=80",
+    alt: "Ovation team collaborating on a project",
+    tall: true,
+  },
+  {
+    src: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=900&q=80",
+    alt: "Engineers reviewing code together",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80",
+    alt: "Coworkers laughing at the office",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=900&q=80",
+    alt: "Workshop session with sticky notes",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?auto=format&fit=crop&w=900&q=80",
+    alt: "Whiteboarding architecture",
+    tall: true,
+  },
+  {
+    src: "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=900&q=80",
+    alt: "Group photo of the team at an offsite",
+  },
+];
+
+export const CAREERS_TESTIMONIAL = {
+  quote:
+    "Ovation feels like one team, one dream. People here actually back each other up — when something is on fire at 2am, you are not alone, and when you ship something great, the whole company celebrates with you.",
+  name: "Priya N.",
+  role: "Senior Talent Partner",
+  photo:
+    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
 };
