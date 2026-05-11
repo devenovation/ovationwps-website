@@ -156,8 +156,8 @@ export default function Hero() {
                 href="#contact"
                 className="inline-flex items-center gap-2 rounded-lg bg-brand-red px-7 py-3.5 text-[0.95rem] font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-red-dark hover:shadow-[0_8px_24px_rgba(179,9,32,0.35)]"
               >
-                {ArrowRightIcon}
                 Start a Conversation
+                {ArrowRightIcon}
               </a>
               <a
                 href="#services"
