@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// Firestore security rules for ovation-web
+//
+// Public surface:
+//   - Anyone can read jobs where active == true (powers the public Careers page)
+//   - Anyone can create an application document (powers the Apply form)
+//
+// Restricted surface (signed-in admin only):
+//   - Listing/reading all jobs including drafts
+//   - Writing/updating/deleting jobs
+//   - Reading/updating/deleting application records
+//
+// Deploy with: firebase deploy --only firestore:rules
+// Or paste this file into the Firebase Console:
+//   Console -> Firestore Database -> Rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -----------------------------------------------------------------
+    // jobs
+    // -----------------------------------------------------------------
+    // Public reads must include `where("active", "==", true)` in the query
+    // (the rule below covers both `get` of an active doc and `list` queries
+    // filtered by active==true). Authenticated admins can read everything.
+    match /jobs/{jobId} {
+      allow read: if resource.data.active == true
+                  || request.auth != null;
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // -----------------------------------------------------------------
+    // applications
+    // -----------------------------------------------------------------
+    // Anyone may submit an application (the public apply form), but
+    // only signed-in HR can read or modify them.
+    match /applications/{appId} {
+      allow create: if request.resource.data.consent == true
+                    && request.resource.data.email is string
+                    && request.resource.data.fullName is string
+                    && request.resource.data.jobId is string
+                    && request.resource.data.status == "new";
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // -----------------------------------------------------------------
+    // taxonomies (master data: departments, locations, employment types)
+    // -----------------------------------------------------------------
+    // Used only by the admin console to manage the lists offered when
+    // creating jobs. Not read from public surfaces.
+    match /taxonomies/{itemId} {
+      allow read, create, update, delete: if request.auth != null;
+    }
+
+    // Default-deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

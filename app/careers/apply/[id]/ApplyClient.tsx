@@ -27,10 +27,13 @@ const labelClass =
 const errorMsgClass =
   "text-[0.78rem] font-medium text-brand-red dark:text-brand-red-soft";
 
+type ExperienceLevel = "fresher" | "experienced";
+
 type FormState = Omit<
   ApplicationInput,
   "jobId" | "jobTitle" | "jobDepartment" | "yearsExperience" | "noticePeriodDays"
 > & {
+  experienceLevel: ExperienceLevel;
   yearsExperience: string;
   noticePeriodDays: string;
 };
@@ -44,6 +47,7 @@ const EMPTY: FormState = {
   linkedinUrl: "",
   resumeUrl: "",
   portfolioUrl: "",
+  experienceLevel: "experienced",
   currentCompany: "",
   currentTitle: "",
   yearsExperience: "",
@@ -81,12 +85,14 @@ function validate(state: FormState): Errors {
     e.resumeUrl = "Enter a valid URL (Google Drive, Dropbox, etc.).";
   if (state.portfolioUrl.trim() && !URL_RE.test(state.portfolioUrl.trim()))
     e.portfolioUrl = "Enter a valid URL or leave it empty.";
-  if (!state.yearsExperience.trim())
-    e.yearsExperience = "Years of experience is required.";
-  else {
-    const n = Number(state.yearsExperience);
-    if (!Number.isFinite(n) || n < 0 || n > 60)
-      e.yearsExperience = "Enter a number between 0 and 60.";
+  if (state.experienceLevel === "experienced") {
+    if (!state.yearsExperience.trim())
+      e.yearsExperience = "Years of experience is required.";
+    else {
+      const n = Number(state.yearsExperience);
+      if (!Number.isFinite(n) || n <= 0 || n > 60)
+        e.yearsExperience = "Enter a number between 0.5 and 60.";
+    }
   }
   if (!state.noticePeriodDays.trim())
     e.noticePeriodDays = "Notice period is required.";
@@ -178,9 +184,16 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
         linkedinUrl: form.linkedinUrl.trim(),
         resumeUrl: form.resumeUrl.trim(),
         portfolioUrl: form.portfolioUrl.trim(),
-        currentCompany: form.currentCompany.trim(),
-        currentTitle: form.currentTitle.trim(),
-        yearsExperience: Number(form.yearsExperience),
+        currentCompany:
+          form.experienceLevel === "fresher"
+            ? ""
+            : form.currentCompany.trim(),
+        currentTitle:
+          form.experienceLevel === "fresher" ? "" : form.currentTitle.trim(),
+        yearsExperience:
+          form.experienceLevel === "fresher"
+            ? 0
+            : Number(form.yearsExperience),
         noticePeriodDays: Number(form.noticePeriodDays),
         expectedSalary: form.expectedSalary.trim(),
         willingToRelocate: form.willingToRelocate,
@@ -439,47 +452,98 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
         </Section>
 
         <Section title="Experience">
-          <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Current company" id="currentCompany">
-              <input
-                id="currentCompany"
-                value={form.currentCompany}
-                onChange={(e) => update("currentCompany", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-              />
-            </Field>
-            <Field label="Current title" id="currentTitle">
-              <input
-                id="currentTitle"
-                value={form.currentTitle}
-                onChange={(e) => update("currentTitle", e.target.value)}
-                className={inputClass}
-                placeholder="Optional"
-              />
-            </Field>
-            <Field
-              label="Years of experience"
-              id="yearsExperience"
-              error={errors.yearsExperience}
-              required
+          <div className="mb-5">
+            <span className={labelClass}>I&apos;m applying as a…</span>
+            <div
+              role="radiogroup"
+              aria-label="Experience level"
+              className="mt-2 inline-flex rounded-lg border border-ink-200 bg-white p-1 shadow-soft dark:border-white/10 dark:bg-white/5"
             >
-              <input
-                id="yearsExperience"
-                type="number"
-                min="0"
-                max="60"
-                step="1"
-                value={form.yearsExperience}
-                onChange={(e) => update("yearsExperience", e.target.value)}
-                className={errors.yearsExperience ? inputErrClass : inputClass}
-              />
-            </Field>
+              {(
+                [
+                  { value: "experienced", label: "Experienced professional" },
+                  { value: "fresher", label: "Fresher / new grad" },
+                ] as { value: ExperienceLevel; label: string }[]
+              ).map((opt) => {
+                const active = form.experienceLevel === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => update("experienceLevel", opt.value)}
+                    className={`rounded-md px-4 py-2 text-[0.85rem] font-semibold transition-colors ${
+                      active
+                        ? "bg-brand-red text-white"
+                        : "text-ink-700 hover:bg-ink-100 dark:text-white/75 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-[0.78rem] text-ink-500 dark:text-white/55">
+              {form.experienceLevel === "fresher"
+                ? "We'll skip the company / title / years questions for you."
+                : "Use a decimal for partial years (e.g. 2.5)."}
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {form.experienceLevel === "experienced" && (
+              <>
+                <Field label="Current company" id="currentCompany">
+                  <input
+                    id="currentCompany"
+                    value={form.currentCompany}
+                    onChange={(e) => update("currentCompany", e.target.value)}
+                    className={inputClass}
+                    placeholder="Optional"
+                  />
+                </Field>
+                <Field label="Current title" id="currentTitle">
+                  <input
+                    id="currentTitle"
+                    value={form.currentTitle}
+                    onChange={(e) => update("currentTitle", e.target.value)}
+                    className={inputClass}
+                    placeholder="Optional"
+                  />
+                </Field>
+                <Field
+                  label="Years of experience"
+                  id="yearsExperience"
+                  error={errors.yearsExperience}
+                  hint="Use a decimal for partial years (e.g. 2.5)."
+                  required
+                >
+                  <input
+                    id="yearsExperience"
+                    type="number"
+                    min="0.5"
+                    max="60"
+                    step="0.5"
+                    inputMode="decimal"
+                    value={form.yearsExperience}
+                    onChange={(e) => update("yearsExperience", e.target.value)}
+                    className={
+                      errors.yearsExperience ? inputErrClass : inputClass
+                    }
+                  />
+                </Field>
+              </>
+            )}
             <Field
               label="Notice period (days)"
               id="noticePeriodDays"
               error={errors.noticePeriodDays}
-              hint="0 if you can start immediately."
+              hint={
+                form.experienceLevel === "fresher"
+                  ? "0 if you can start immediately."
+                  : "0 if you can start immediately."
+              }
               required
             >
               <input

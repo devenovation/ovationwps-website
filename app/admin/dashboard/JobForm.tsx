@@ -1,13 +1,18 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Job, JobInput, EMPLOYMENT_TYPES } from "@/lib/firebase/types";
 import { createJob, updateJob } from "@/lib/firebase/jobs";
 import { useToast } from "../../components/Toast";
+import {
+  TaxonomyItem,
+  subscribeToAllTaxonomies,
+} from "@/lib/firebase/taxonomies";
 
 interface Props {
   initial?: Job | null;
-  onClose: () => void;
 }
 
 const EMPTY: JobInput = {
@@ -33,13 +38,41 @@ const linesToArray = (text: string) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-export default function JobForm({ initial, onClose }: Props) {
+export default function JobForm({ initial }: Props) {
+  const router = useRouter();
   const toast = useToast();
   const [form, setForm] = useState<JobInput>(EMPTY);
   const [requirementsText, setRequirementsText] = useState("");
   const [responsibilitiesText, setResponsibilitiesText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [taxonomies, setTaxonomies] = useState<TaxonomyItem[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeToAllTaxonomies(setTaxonomies);
+    return unsub;
+  }, []);
+
+  const departmentOptions = useMemo(
+    () =>
+      taxonomies
+        .filter((t) => t.kind === "department" && t.active)
+        .map((t) => t.name),
+    [taxonomies],
+  );
+  const locationOptions = useMemo(
+    () =>
+      taxonomies
+        .filter((t) => t.kind === "location" && t.active)
+        .map((t) => t.name),
+    [taxonomies],
+  );
+  const employmentOptions = useMemo(() => {
+    const custom = taxonomies
+      .filter((t) => t.kind === "employmentType" && t.active)
+      .map((t) => t.name);
+    return custom.length > 0 ? custom : (EMPLOYMENT_TYPES as readonly string[]);
+  }, [taxonomies]);
 
   useEffect(() => {
     if (initial) {
@@ -65,6 +98,8 @@ export default function JobForm({ initial, onClose }: Props) {
 
   const update = <K extends keyof JobInput>(key: K, value: JobInput[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  const onCancel = () => router.push("/admin/dashboard");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,7 +127,7 @@ export default function JobForm({ initial, onClose }: Props) {
             : `"${payload.title}" was saved as a draft.`,
         );
       }
-      onClose();
+      router.push("/admin/dashboard");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not save job.";
       setError(msg);
@@ -103,166 +138,241 @@ export default function JobForm({ initial, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 px-4 py-10">
-      <div className="w-full max-w-[680px] rounded-card-lg border border-ink-200 bg-white p-7 shadow-soft dark:border-white/10 dark:bg-navy-deep">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-xl font-extrabold tracking-[-0.01em] text-navy dark:text-white">
-            {initial ? "Edit job" : "New job"}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-2xl leading-none text-ink-500 hover:text-navy dark:text-white/60 dark:hover:text-white"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
-
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="title" className={labelClass}>
-                Job title
-              </label>
-              <input
-                id="title"
-                required
-                value={form.title}
-                onChange={(e) => update("title", e.target.value)}
-                className={inputClass}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="department" className={labelClass}>
-                Department
-              </label>
-              <input
-                id="department"
-                required
-                value={form.department}
-                onChange={(e) => update("department", e.target.value)}
-                className={inputClass}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="location" className={labelClass}>
-                Location
-              </label>
-              <input
-                id="location"
-                required
-                value={form.location}
-                onChange={(e) => update("location", e.target.value)}
-                placeholder="Remote · New York · Hybrid"
-                className={inputClass}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="type" className={labelClass}>
-                Employment type
-              </label>
-              <select
-                id="type"
-                value={form.type}
-                onChange={(e) =>
-                  update("type", e.target.value as JobInput["type"])
-                }
-                className={inputClass}
-              >
-                {EMPLOYMENT_TYPES.map((t) => (
-                  <option key={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
+    <form
+      onSubmit={onSubmit}
+      className="flex flex-col gap-6 rounded-card-lg border border-ink-200 bg-white p-7 shadow-soft dark:border-white/10 dark:bg-white/5"
+    >
+      <section className="flex flex-col gap-4">
+        <h2 className="text-[0.78rem] font-bold uppercase tracking-[0.13em] text-ink-500 dark:text-white/55">
+          Role basics
+        </h2>
+        <div className="grid gap-4 md:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="applyEmail" className={labelClass}>
-              Apply email
+            <label htmlFor="title" className={labelClass}>
+              Job title
             </label>
             <input
-              id="applyEmail"
-              type="email"
+              id="title"
               required
-              value={form.applyEmail}
-              onChange={(e) => update("applyEmail", e.target.value)}
-              placeholder="careers@ovationwps.com"
+              value={form.title}
+              onChange={(e) => update("title", e.target.value)}
               className={inputClass}
             />
           </div>
-
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="description" className={labelClass}>
-              Description
+            <label htmlFor="department" className={labelClass}>
+              Department
             </label>
-            <textarea
-              id="description"
+            <select
+              id="department"
               required
-              value={form.description}
-              onChange={(e) => update("description", e.target.value)}
-              className={`${inputClass} min-h-[110px] resize-y`}
-            />
+              value={form.department}
+              onChange={(e) => update("department", e.target.value)}
+              disabled={departmentOptions.length === 0}
+              className={inputClass}
+            >
+              <option value="" disabled>
+                {departmentOptions.length === 0
+                  ? "Add departments under Master Data"
+                  : "Select a department"}
+              </option>
+              {form.department &&
+                !departmentOptions.includes(form.department) && (
+                  <option value={form.department}>
+                    {form.department} (inactive)
+                  </option>
+                )}
+              {departmentOptions.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <MasterDataHint kind="departments" empty={departmentOptions.length === 0} />
           </div>
-
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="responsibilities" className={labelClass}>
-              Responsibilities <span className="font-normal text-ink-500 dark:text-white/50">(one per line)</span>
+            <label htmlFor="location" className={labelClass}>
+              Location
             </label>
-            <textarea
-              id="responsibilities"
-              value={responsibilitiesText}
-              onChange={(e) => setResponsibilitiesText(e.target.value)}
-              className={`${inputClass} min-h-[110px] resize-y`}
-            />
+            <select
+              id="location"
+              required
+              value={form.location}
+              onChange={(e) => update("location", e.target.value)}
+              disabled={locationOptions.length === 0}
+              className={inputClass}
+            >
+              <option value="" disabled>
+                {locationOptions.length === 0
+                  ? "Add locations under Master Data"
+                  : "Select a location"}
+              </option>
+              {form.location &&
+                !locationOptions.includes(form.location) && (
+                  <option value={form.location}>
+                    {form.location} (inactive)
+                  </option>
+                )}
+              {locationOptions.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <MasterDataHint kind="locations" empty={locationOptions.length === 0} />
           </div>
-
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="requirements" className={labelClass}>
-              Requirements <span className="font-normal text-ink-500 dark:text-white/50">(one per line)</span>
+            <label htmlFor="type" className={labelClass}>
+              Employment type
             </label>
-            <textarea
-              id="requirements"
-              value={requirementsText}
-              onChange={(e) => setRequirementsText(e.target.value)}
-              className={`${inputClass} min-h-[110px] resize-y`}
-            />
+            <select
+              id="type"
+              value={form.type}
+              onChange={(e) =>
+                update("type", e.target.value as JobInput["type"])
+              }
+              className={inputClass}
+            >
+              {employmentOptions.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
 
-          <label className="flex items-center gap-2 text-[0.85rem] text-ink-700 dark:text-white/75">
-            <input
-              type="checkbox"
-              checked={form.active}
-              onChange={(e) => update("active", e.target.checked)}
-              className="h-4 w-4 accent-brand-red"
-            />
-            Publish (visible on Careers page)
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="applyEmail" className={labelClass}>
+            Apply email
           </label>
+          <input
+            id="applyEmail"
+            type="email"
+            required
+            value={form.applyEmail}
+            onChange={(e) => update("applyEmail", e.target.value)}
+            placeholder="careers@ovationwps.com"
+            className={inputClass}
+          />
+        </div>
+      </section>
 
-          {error && (
-            <div className="rounded-md border border-brand-red/30 bg-brand-red/10 px-3 py-2 text-[0.82rem] text-brand-red dark:text-brand-red-soft">
-              {error}
-            </div>
-          )}
+      <section className="flex flex-col gap-4">
+        <h2 className="text-[0.78rem] font-bold uppercase tracking-[0.13em] text-ink-500 dark:text-white/55">
+          Job details
+        </h2>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="description" className={labelClass}>
+            Description
+          </label>
+          <textarea
+            id="description"
+            required
+            value={form.description}
+            onChange={(e) => update("description", e.target.value)}
+            className={`${inputClass} min-h-[120px] resize-y`}
+          />
+        </div>
 
-          <div className="mt-2 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-lg border border-ink-200 bg-white px-5 py-2.5 text-[0.9rem] font-semibold text-ink-700 transition-colors hover:bg-ink-100 dark:border-white/15 dark:bg-transparent dark:text-white/80 dark:hover:bg-white/5"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-lg bg-brand-red px-5 py-2.5 text-[0.9rem] font-semibold text-white transition-colors hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {submitting ? "Saving…" : initial ? "Save changes" : "Create job"}
-            </button>
-          </div>
-        </form>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="responsibilities" className={labelClass}>
+            Responsibilities{" "}
+            <span className="font-normal text-ink-500 dark:text-white/50">
+              (one per line)
+            </span>
+          </label>
+          <textarea
+            id="responsibilities"
+            value={responsibilitiesText}
+            onChange={(e) => setResponsibilitiesText(e.target.value)}
+            className={`${inputClass} min-h-[120px] resize-y`}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="requirements" className={labelClass}>
+            Requirements{" "}
+            <span className="font-normal text-ink-500 dark:text-white/50">
+              (one per line)
+            </span>
+          </label>
+          <textarea
+            id="requirements"
+            value={requirementsText}
+            onChange={(e) => setRequirementsText(e.target.value)}
+            className={`${inputClass} min-h-[120px] resize-y`}
+          />
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-[0.78rem] font-bold uppercase tracking-[0.13em] text-ink-500 dark:text-white/55">
+          Visibility
+        </h2>
+        <label className="flex items-center gap-2 text-[0.88rem] text-ink-700 dark:text-white/75">
+          <input
+            type="checkbox"
+            checked={form.active}
+            onChange={(e) => update("active", e.target.checked)}
+            className="h-4 w-4 accent-brand-red"
+          />
+          Publish (visible on Careers page)
+        </label>
+      </section>
+
+      {error && (
+        <div className="rounded-md border border-brand-red/30 bg-brand-red/10 px-3 py-2 text-[0.82rem] text-brand-red dark:text-brand-red-soft">
+          {error}
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-200 pt-5 dark:border-white/10">
+        <Link
+          href="/admin/dashboard/master-data"
+          className="text-[0.78rem] font-semibold text-brand-red hover:underline dark:text-brand-red-soft"
+        >
+          Manage master data →
+        </Link>
+        <div className="flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-lg border border-ink-200 bg-white px-5 py-2.5 text-[0.9rem] font-semibold text-ink-700 transition-colors hover:bg-ink-100 dark:border-white/15 dark:bg-transparent dark:text-white/80 dark:hover:bg-white/5"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={submitting}
+          className="rounded-lg bg-brand-red px-5 py-2.5 text-[0.9rem] font-semibold text-white transition-colors hover:bg-brand-red-dark disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {submitting ? "Saving…" : initial ? "Save changes" : "Create job"}
+        </button>
+        </div>
       </div>
-    </div>
+    </form>
+  );
+}
+
+function MasterDataHint({
+  kind,
+  empty,
+}: {
+  kind: "departments" | "locations";
+  empty: boolean;
+}) {
+  if (!empty) return null;
+  return (
+    <p className="text-[0.74rem] text-ink-500 dark:text-white/55">
+      No saved {kind} yet — they’ll auto-suggest once you add some in{" "}
+      <Link
+        href="/admin/dashboard/master-data"
+        className="font-semibold text-brand-red hover:underline dark:text-brand-red-soft"
+      >
+        Master Data
+      </Link>
+      .
+    </p>
   );
 }

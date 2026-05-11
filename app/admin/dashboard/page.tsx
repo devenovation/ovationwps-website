@@ -1,44 +1,65 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../../components/AuthProvider";
-import { logout } from "@/lib/firebase/auth";
+import AdminShell from "../components/AdminShell";
+import AuthGuard from "../components/AuthGuard";
 import {
   deleteJob,
   subscribeToAllJobs,
   updateJob,
 } from "@/lib/firebase/jobs";
 import { Job } from "@/lib/firebase/types";
-import JobForm from "./JobForm";
 import { useToast } from "../../components/Toast";
+import {
+  Application,
+  subscribeToAllApplications,
+} from "@/lib/firebase/applications";
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
+  return (
+    <AuthGuard>
+      <DashboardInner />
+    </AuthGuard>
+  );
+}
+
+function DashboardInner() {
   const toast = useToast();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [jobsLoading, setJobsLoading] = useState(true);
-  const [editing, setEditing] = useState<Job | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   useEffect(() => {
-    if (!loading && !user) router.replace("/admin");
-  }, [loading, user, router]);
-
-  useEffect(() => {
-    if (!user) return;
     const unsub = subscribeToAllJobs((next) => {
       setJobs(next);
       setJobsLoading(false);
     });
     return unsub;
-  }, [user]);
+  }, []);
+
+  useEffect(() => {
+    const unsub = subscribeToAllApplications((next) => setApplications(next));
+    return unsub;
+  }, []);
 
   const summary = useMemo(() => {
     const active = jobs.filter((j) => j.active).length;
-    return { total: jobs.length, active, draft: jobs.length - active };
-  }, [jobs]);
+    return {
+      total: jobs.length,
+      active,
+      draft: jobs.length - active,
+      applicants: applications.length,
+    };
+  }, [jobs, applications]);
+
+  const applicantCounts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const a of applications) {
+      map.set(a.jobId, (map.get(a.jobId) ?? 0) + 1);
+    }
+    return map;
+  }, [applications]);
 
   const onToggleActive = async (job: Job) => {
     const next = !job.active;
@@ -71,56 +92,36 @@ export default function DashboardPage() {
     }
   };
 
-  const onLogout = async () => {
-    await logout();
-    toast.info("Signed out", "You have been signed out of the admin portal.");
-    router.replace("/admin");
-  };
-
-  if (loading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-ink-500 dark:text-white/60">
-        Loading…
-      </div>
-    );
-  }
-
   return (
-    <div className="mx-auto max-w-[1160px] px-7 py-12">
-      <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <span className="mb-2 inline-block text-[0.72rem] font-bold uppercase tracking-[0.13em] text-brand-red dark:text-brand-red-soft">
-            Admin · Job Postings
-          </span>
-          <h1 className="text-[clamp(1.6rem,2.6vw,2.2rem)] font-extrabold tracking-[-0.02em] text-navy dark:text-white">
-            HR Dashboard
-          </h1>
-          <p className="mt-1 text-[0.88rem] text-ink-500 dark:text-white/60">
-            Signed in as {user.email}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="rounded-lg bg-brand-red px-5 py-2.5 text-[0.9rem] font-semibold text-white transition-colors hover:bg-brand-red-dark"
+    <AdminShell
+      eyebrow="Admin · Job Postings"
+      title="HR Dashboard"
+      description="Manage open roles and review incoming applications."
+      actions={
+        <Link
+          href="/admin/dashboard/jobs/new"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-red px-5 py-2.5 text-[0.9rem] font-semibold text-white transition-colors hover:bg-brand-red-dark"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
           >
-            + New job
-          </button>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="rounded-lg border border-ink-200 bg-white px-5 py-2.5 text-[0.9rem] font-semibold text-ink-700 transition-colors hover:bg-ink-100 dark:border-white/15 dark:bg-transparent dark:text-white/80 dark:hover:bg-white/5"
-          >
-            Sign out
-          </button>
-        </div>
-      </header>
-
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <Stat label="Total" value={summary.total} />
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          New job
+        </Link>
+      }
+    >
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat label="Total jobs" value={summary.total} />
         <Stat label="Published" value={summary.active} />
         <Stat label="Draft" value={summary.draft} />
+        <Stat label="Applicants" value={summary.applicants} />
       </div>
 
       <div className="overflow-hidden rounded-card-lg border border-ink-200 bg-white shadow-soft dark:border-white/10 dark:bg-white/5">
@@ -129,76 +130,99 @@ export default function DashboardPage() {
             Loading jobs…
           </div>
         ) : jobs.length === 0 ? (
-          <div className="px-6 py-10 text-center text-sm text-ink-500 dark:text-white/60">
-            No jobs yet. Click <span className="font-semibold">New job</span> to create one.
+          <div className="px-6 py-12 text-center">
+            <p className="mb-2 text-base font-bold text-navy dark:text-white">
+              No jobs yet
+            </p>
+            <p className="mb-5 text-sm text-ink-500 dark:text-white/60">
+              Create your first role to start collecting applications.
+            </p>
+            <Link
+              href="/admin/dashboard/jobs/new"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-red px-5 py-2.5 text-[0.9rem] font-semibold text-white transition-colors hover:bg-brand-red-dark"
+            >
+              + New job
+            </Link>
           </div>
         ) : (
-          <table className="w-full text-left text-[0.9rem]">
-            <thead className="bg-ink-100 text-[0.75rem] uppercase tracking-wider text-ink-700 dark:bg-white/5 dark:text-white/60">
-              <tr>
-                <th className="px-5 py-3 font-semibold">Title</th>
-                <th className="px-5 py-3 font-semibold">Department</th>
-                <th className="px-5 py-3 font-semibold">Location</th>
-                <th className="px-5 py-3 font-semibold">Type</th>
-                <th className="px-5 py-3 font-semibold">Status</th>
-                <th className="px-5 py-3 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-ink-200 dark:divide-white/10">
-              {jobs.map((job) => (
-                <tr key={job.id} className="text-navy dark:text-white/90">
-                  <td className="px-5 py-3 font-semibold">{job.title}</td>
-                  <td className="px-5 py-3">{job.department}</td>
-                  <td className="px-5 py-3">{job.location}</td>
-                  <td className="px-5 py-3">{job.type}</td>
-                  <td className="px-5 py-3">
-                    <button
-                      type="button"
-                      onClick={() => onToggleActive(job)}
-                      className={`rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ${
-                        job.active
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                          : "bg-ink-200 text-ink-700 dark:bg-white/10 dark:text-white/70"
-                      }`}
-                    >
-                      {job.active ? "Published" : "Draft"}
-                    </button>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <div className="inline-flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditing(job)}
-                        className="rounded-md border border-ink-200 px-3 py-1.5 text-[0.78rem] font-semibold text-ink-700 transition-colors hover:bg-ink-100 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/5"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDelete(job)}
-                        className="rounded-md border border-brand-red/40 px-3 py-1.5 text-[0.78rem] font-semibold text-brand-red transition-colors hover:bg-brand-red hover:text-white dark:text-brand-red-soft"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[0.9rem]">
+              <thead className="bg-ink-100 text-[0.72rem] uppercase tracking-wider text-ink-700 dark:bg-white/5 dark:text-white/60">
+                <tr>
+                  <th className="px-5 py-3 font-semibold">Title</th>
+                  <th className="px-5 py-3 font-semibold">Department</th>
+                  <th className="px-5 py-3 font-semibold">Location</th>
+                  <th className="px-5 py-3 font-semibold">Type</th>
+                  <th className="px-5 py-3 font-semibold">Applicants</th>
+                  <th className="px-5 py-3 font-semibold">Status</th>
+                  <th className="px-5 py-3 text-right font-semibold">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-ink-200 dark:divide-white/10">
+                {jobs.map((job) => {
+                  const count = applicantCounts.get(job.id) ?? 0;
+                  return (
+                    <tr key={job.id} className="text-navy dark:text-white/90">
+                      <td className="px-5 py-3 font-semibold">{job.title}</td>
+                      <td className="px-5 py-3">{job.department}</td>
+                      <td className="px-5 py-3">{job.location}</td>
+                      <td className="px-5 py-3">{job.type}</td>
+                      <td className="px-5 py-3">
+                        <Link
+                          href={`/admin/dashboard/jobs/${job.id}/applicants`}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.78rem] font-semibold transition-colors ${
+                            count > 0
+                              ? "bg-brand-red/10 text-brand-red hover:bg-brand-red/15 dark:bg-brand-red/20 dark:text-brand-red-soft"
+                              : "bg-ink-100 text-ink-700 hover:bg-ink-200 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/15"
+                          }`}
+                        >
+                          {count}
+                          <span className="text-[0.7rem] font-medium opacity-80">
+                            view
+                          </span>
+                        </Link>
+                      </td>
+                      <td className="px-5 py-3">
+                        <button
+                          type="button"
+                          onClick={() => onToggleActive(job)}
+                          className={`rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ${
+                            job.active
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                              : "bg-ink-200 text-ink-700 dark:bg-white/10 dark:text-white/70"
+                          }`}
+                        >
+                          {job.active ? "Published" : "Draft"}
+                        </button>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <div className="inline-flex gap-2">
+                          <Link
+                            href={`/admin/dashboard/jobs/${job.id}/edit`}
+                            className="rounded-md border border-ink-200 px-3 py-1.5 text-[0.78rem] font-semibold text-ink-700 transition-colors hover:bg-ink-100 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/5"
+                          >
+                            Edit
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => onDelete(job)}
+                            className="rounded-md border border-brand-red/40 px-3 py-1.5 text-[0.78rem] font-semibold text-brand-red transition-colors hover:bg-brand-red hover:text-white dark:text-brand-red-soft"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
-
-      {(creating || editing) && (
-        <JobForm
-          initial={editing}
-          onClose={() => {
-            setCreating(false);
-            setEditing(null);
-          }}
-        />
-      )}
-    </div>
+    </AdminShell>
   );
 }
 
