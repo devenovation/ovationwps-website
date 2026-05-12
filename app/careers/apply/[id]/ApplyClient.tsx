@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { getJob } from "@/lib/firebase/jobs";
-import { Job } from "@/lib/firebase/types";
+import { Job, formatJobLocation, jobCityCountry } from "@/lib/firebase/types";
 import {
   ApplicationInput,
   HEAR_ABOUT_OPTIONS,
@@ -333,12 +333,30 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
         <h1 className="text-[clamp(1.7rem,3.4vw,2.4rem)] font-extrabold leading-[1.15] tracking-[-0.025em] text-navy dark:text-white">
           {job.title}
         </h1>
+        {formatJobLocation(job.location) && (
+          <div className="mt-3 flex items-start gap-2 text-[0.92rem] font-medium text-navy dark:text-white">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mt-0.5 h-[18px] w-[18px] shrink-0 text-brand-red dark:text-brand-red-soft"
+              aria-hidden="true"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>{formatJobLocation(job.location)}</span>
+          </div>
+        )}
         <div className="mt-3 flex flex-wrap gap-2">
           <span className="rounded-full bg-brand-red-light px-2.5 py-1 text-[0.7rem] font-semibold tracking-[0.04em] text-brand-red dark:bg-brand-red/25 dark:text-brand-red-soft">
             {job.department}
           </span>
           <span className="rounded-full bg-ink-100 px-2.5 py-1 text-[0.7rem] font-semibold tracking-[0.04em] text-ink-700 dark:bg-white/10 dark:text-white/70">
-            {job.location}
+            {jobCityCountry(job.location)}
           </span>
           <span className="rounded-full bg-ink-100 px-2.5 py-1 text-[0.7rem] font-semibold tracking-[0.04em] text-ink-700 dark:bg-white/10 dark:text-white/70">
             {job.type}

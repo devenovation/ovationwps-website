@@ -9,7 +9,7 @@ import {
   Application,
   subscribeToAllApplications,
 } from "@/lib/firebase/applications";
-import { Job } from "@/lib/firebase/types";
+import { Job, jobCityCountry } from "@/lib/firebase/types";
 import { subscribeToAllJobs } from "@/lib/firebase/jobs";
 import {
   TaxonomyItem,
@@ -96,12 +96,8 @@ function Inner() {
     [jobs, taxonomies],
   );
   const locationOptions = useMemo(
-    () =>
-      unionSorted(
-        taxonomyOptions("location"),
-        jobs.map((j) => j.location),
-      ),
-    [jobs, taxonomies],
+    () => unionSorted(jobs.map((j) => jobCityCountry(j.location))),
+    [jobs],
   );
   const typeOptions = useMemo(
     () =>
@@ -118,7 +114,7 @@ function Inner() {
       if (jobFilter !== "all" && a.jobId !== jobFilter) return false;
       const job = jobsById.get(a.jobId);
       const dept = a.jobDepartment || job?.department || "";
-      const loc = job?.location ?? "";
+      const loc = job ? jobCityCountry(job.location) : "";
       const type = job?.type ?? "";
       if (departmentFilter !== "all" && dept !== departmentFilter) return false;
       if (locationFilter !== "all" && loc !== locationFilter) return false;

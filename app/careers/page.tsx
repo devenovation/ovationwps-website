@@ -13,7 +13,7 @@ import {
   CAREERS_TESTIMONIAL,
 } from "../constants";
 import { listActiveJobs } from "@/lib/firebase/jobs";
-import { Job } from "@/lib/firebase/types";
+import { Job, formatJobLocation, jobCityCountry } from "@/lib/firebase/types";
 
 export default function CareersPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -51,7 +51,10 @@ export default function CareersPage() {
 
   const offices = useMemo(() => {
     const set = new Set<string>();
-    jobs.forEach((j) => j.location && set.add(j.location));
+    jobs.forEach((j) => {
+      const c = jobCityCountry(j.location);
+      if (c) set.add(c);
+    });
     return ["All", ...Array.from(set).sort()];
   }, [jobs]);
 
@@ -59,12 +62,12 @@ export default function CareersPage() {
     const q = search.trim().toLowerCase();
     return jobs.filter((j) => {
       if (department !== "All" && j.department !== department) return false;
-      if (office !== "All" && j.location !== office) return false;
+      if (office !== "All" && jobCityCountry(j.location) !== office) return false;
       if (!q) return true;
       const haystack = [
         j.title,
         j.department,
-        j.location,
+        formatJobLocation(j.location),
         j.type,
         j.description,
       ]
@@ -730,7 +733,7 @@ function JobCard({ job, divider }: { job: Job; divider: boolean }) {
               {job.department}
             </span>
             <span className="rounded-full bg-ink-100 px-2.5 py-1 text-[0.7rem] font-semibold tracking-[0.04em] text-ink-700 dark:bg-white/10 dark:text-white/70">
-              {job.location}
+              {jobCityCountry(job.location)}
             </span>
             <span className="rounded-full bg-ink-100 px-2.5 py-1 text-[0.7rem] font-semibold tracking-[0.04em] text-ink-700 dark:bg-white/10 dark:text-white/70">
               {job.type}
@@ -757,6 +760,24 @@ function JobCard({ job, divider }: { job: Job; divider: boolean }) {
 
       {open && (
         <div className="mt-5 border-t border-ink-200 pt-5 dark:border-white/10">
+          {formatJobLocation(job.location) && (
+            <div className="mb-4 flex items-start gap-2 text-[0.88rem] font-medium text-navy dark:text-white">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mt-0.5 h-[18px] w-[18px] shrink-0 text-brand-red dark:text-brand-red-soft"
+                aria-hidden="true"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>{formatJobLocation(job.location)}</span>
+            </div>
+          )}
           <p className="text-[0.92rem] leading-[1.7] text-ink-700 dark:text-white/75">
             {job.description}
           </p>

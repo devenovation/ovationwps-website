@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -13,17 +14,19 @@ import {
 } from "firebase/firestore";
 import { db } from "./config";
 
-export type TaxonomyKind = "department" | "location" | "employmentType";
+export type TaxonomyKind = "department" | "city" | "country" | "employmentType";
 
 export const TAXONOMY_KINDS: TaxonomyKind[] = [
   "department",
-  "location",
+  "city",
+  "country",
   "employmentType",
 ];
 
 export const TAXONOMY_LABELS: Record<TaxonomyKind, { singular: string; plural: string }> = {
   department: { singular: "Department", plural: "Departments" },
-  location: { singular: "Location", plural: "Locations" },
+  city: { singular: "City", plural: "Cities" },
+  country: { singular: "Country", plural: "Countries" },
   employmentType: { singular: "Employment type", plural: "Employment types" },
 };
 
@@ -86,6 +89,21 @@ export async function updateTaxonomyItem(
 
 export async function deleteTaxonomyItem(id: string) {
   return deleteDoc(itemDoc(id));
+}
+
+/**
+ * Creates a taxonomy entry for `name` under `kind` if an entry with the same
+ * name (case-insensitive) does not already exist. Used to auto-populate the
+ * city / country lists when a job is saved.
+ */
+export async function ensureTaxonomyItem(kind: TaxonomyKind, name: string) {
+  const clean = name.trim();
+  if (!clean) return;
+  const snap = await getDocs(query(colRef(), where("kind", "==", kind)));
+  const exists = snap.docs.some(
+    (d) => ((d.data().name as string) ?? "").trim().toLowerCase() === clean.toLowerCase(),
+  );
+  if (!exists) await createTaxonomyItem(kind, { name: clean });
 }
 
 export function subscribeToTaxonomy(

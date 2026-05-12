@@ -13,7 +13,8 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "./config";
-import { Job, JobInput } from "./types";
+import { Job, JobInput, toJobLocation } from "./types";
+import { ensureTaxonomyItem } from "./taxonomies";
 
 const JOBS = "jobs";
 const jobsCol = () => collection(db, JOBS);
@@ -24,7 +25,7 @@ function toJob(id: string, data: Record<string, unknown>): Job {
     id,
     title: (data.title as string) ?? "",
     department: (data.department as string) ?? "",
-    location: (data.location as string) ?? "",
+    location: toJobLocation(data.location),
     type: (data.type as Job["type"]) ?? "Full-Time",
     description: (data.description as string) ?? "",
     requirements: (data.requirements as string[]) ?? [],
@@ -36,16 +37,36 @@ function toJob(id: string, data: Record<string, unknown>): Job {
   };
 }
 
+/** Adds the job's city / country to master data if they aren't there yet. */
+async function syncLocationTaxonomies(location: JobInput["location"] | undefined) {
+  if (!location) return;
+  try {
+    await Promise.all([
+      ensureTaxonomyItem("city", location.city ?? ""),
+      ensureTaxonomyItem("country", location.country ?? ""),
+    ]);
+  } catch {
+    // Non-fatal: the job itself was saved; master-data sync is best-effort.
+  }
+}
+
 export async function createJob(input: JobInput) {
-  return addDoc(jobsCol(), {
+  const ref = await addDoc(jobsCol(), {
     ...input,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+  await syncLocationTaxonomies(input.location);
+  return ref;
 }
 
 export async function updateJob(id: string, input: Partial<JobInput>) {
-  return updateDoc(jobDoc(id), { ...input, updatedAt: serverTimestamp() });
+  const res = await updateDoc(jobDoc(id), {
+    ...input,
+    updatedAt: serverTimestamp(),
+  });
+  await syncLocationTaxonomies(input.location);
+  return res;
 }
 
 export async function deleteJob(id: string) {

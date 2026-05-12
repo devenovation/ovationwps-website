@@ -58,7 +58,8 @@ function Inner() {
 
 const PLACEHOLDERS: Record<TaxonomyKind, string> = {
   department: "Engineering",
-  location: "Hyderabad, IN",
+  city: "Hyderabad",
+  country: "India",
   employmentType: "Full-Time",
 };
 
@@ -67,8 +68,6 @@ function TaxonomyManager({ kind }: { kind: TaxonomyKind }) {
   const [items, setItems] = useState<TaxonomyItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
-  const [newCity, setNewCity] = useState("");
-  const [newCountry, setNewCountry] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
@@ -86,24 +85,15 @@ function TaxonomyManager({ kind }: { kind: TaxonomyKind }) {
     setEditingId(null);
     setEditingName("");
     setNewName("");
-    setNewCity("");
-    setNewCountry("");
   }, [kind]);
 
   const label = TAXONOMY_LABELS[kind];
 
-  const composedLocation =
-    newCity.trim() && newCountry.trim()
-      ? `${newCity.trim()}, ${newCountry.trim()}`
-      : "";
-
-  const submitDisabled =
-    submitting ||
-    (kind === "location" ? !composedLocation : !newName.trim());
+  const submitDisabled = submitting || !newName.trim();
 
   const onCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const name = (kind === "location" ? composedLocation : newName).trim();
+    const name = newName.trim();
     if (!name) return;
     if (
       items.some((i) => i.name.toLowerCase() === name.toLowerCase())
@@ -114,12 +104,7 @@ function TaxonomyManager({ kind }: { kind: TaxonomyKind }) {
     setSubmitting(true);
     try {
       await createTaxonomyItem(kind, { name });
-      if (kind === "location") {
-        setNewCity("");
-        setNewCountry("");
-      } else {
-        setNewName("");
-      }
+      setNewName("");
       toast.success(`${label.singular} added`, `"${name}" was created.`);
     } catch (err) {
       toast.error(
@@ -298,44 +283,17 @@ function TaxonomyManager({ kind }: { kind: TaxonomyKind }) {
           Add {label.singular.toLowerCase()}
         </h3>
         <p className="mb-4 text-[0.82rem] text-ink-500 dark:text-white/60">
-          {kind === "location"
-            ? "Enter a city and country — the location is saved as “City, Country”."
+          {kind === "city" || kind === "country"
+            ? `New entries appear as ${label.singular.toLowerCase()} suggestions when creating a job — and any ${label.singular.toLowerCase()} typed on a job is added here automatically.`
             : `New entries appear in the ${label.singular.toLowerCase()} dropdown when creating a job.`}
         </p>
         <form onSubmit={onCreate} className="flex flex-col gap-3">
-          {kind === "location" ? (
-            <>
-              <input
-                value={newCity}
-                onChange={(e) => setNewCity(e.target.value)}
-                placeholder="City (e.g. Mumbai)"
-                aria-label="City"
-                className="rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.9rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(179,9,32,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:focus:border-brand-red-soft"
-              />
-              <input
-                value={newCountry}
-                onChange={(e) => setNewCountry(e.target.value)}
-                placeholder="Country (e.g. India)"
-                aria-label="Country"
-                className="rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.9rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(179,9,32,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:focus:border-brand-red-soft"
-              />
-              {composedLocation && (
-                <p className="text-[0.78rem] text-ink-500 dark:text-white/55">
-                  Will be saved as{" "}
-                  <span className="font-semibold text-navy dark:text-white">
-                    {composedLocation}
-                  </span>
-                </p>
-              )}
-            </>
-          ) : (
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder={`e.g. ${PLACEHOLDERS[kind]}`}
-              className="rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.9rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(179,9,32,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:focus:border-brand-red-soft"
-            />
-          )}
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder={`e.g. ${PLACEHOLDERS[kind]}`}
+            className="rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.9rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(179,9,32,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:focus:border-brand-red-soft"
+          />
           <button
             type="submit"
             disabled={submitDisabled}

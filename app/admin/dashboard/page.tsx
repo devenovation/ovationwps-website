@@ -9,7 +9,7 @@ import {
   subscribeToAllJobs,
   updateJob,
 } from "@/lib/firebase/jobs";
-import { Job } from "@/lib/firebase/types";
+import { Job, jobCityCountry } from "@/lib/firebase/types";
 import { useToast } from "../../components/Toast";
 import {
   Application,
@@ -167,7 +167,7 @@ function DashboardInner() {
                     <tr key={job.id} className="text-navy dark:text-white/90">
                       <td className="px-5 py-3 font-semibold">{job.title}</td>
                       <td className="px-5 py-3">{job.department}</td>
-                      <td className="px-5 py-3">{job.location}</td>
+                      <td className="px-5 py-3">{jobCityCountry(job.location)}</td>
                       <td className="px-5 py-3">{job.type}</td>
                       <td className="px-5 py-3">
                         <Link

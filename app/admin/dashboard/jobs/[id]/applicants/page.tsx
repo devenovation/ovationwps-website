@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import AdminShell from "../../../../components/AdminShell";
 import AuthGuard from "../../../../components/AuthGuard";
 import { getJob } from "@/lib/firebase/jobs";
-import { Job } from "@/lib/firebase/types";
+import { Job, jobCityCountry } from "@/lib/firebase/types";
 import {
   Application,
   subscribeToApplicationsForJob,
@@ -98,7 +98,7 @@ function Inner() {
       title={job ? `${job.title}` : "Applicants"}
       description={
         job
-          ? `${apps.length} application${apps.length === 1 ? "" : "s"} · ${job.department} · ${job.location}`
+          ? `${apps.length} application${apps.length === 1 ? "" : "s"} · ${job.department} · ${jobCityCountry(job.location)}`
           : "Applicants for this role"
       }
       actions={

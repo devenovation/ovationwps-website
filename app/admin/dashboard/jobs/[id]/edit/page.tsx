@@ -7,7 +7,7 @@ import AdminShell from "../../../../components/AdminShell";
 import AuthGuard from "../../../../components/AuthGuard";
 import JobForm from "../../../JobForm";
 import { getJob } from "@/lib/firebase/jobs";
-import { Job } from "@/lib/firebase/types";
+import { Job, jobCityCountry } from "@/lib/firebase/types";
 
 export default function EditJobPage() {
   const params = useParams<{ id: string }>();
@@ -44,7 +44,9 @@ export default function EditJobPage() {
         eyebrow="Admin · Job Postings"
         title={job ? `Edit · ${job.title}` : "Edit job"}
         description={
-          job ? `${job.department} · ${job.location}` : "Update role details."
+          job
+            ? `${job.department} · ${jobCityCountry(job.location)}`
+            : "Update role details."
         }
         actions={
           <div className="flex flex-wrap gap-2">
