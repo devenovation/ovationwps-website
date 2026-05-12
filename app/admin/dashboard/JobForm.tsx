@@ -101,7 +101,8 @@ function buildLinkedInCaption(job: JobInput, applyUrl: string): string {
     job.requirements.forEach((r) => lines.push(`• ${r}`));
     lines.push("");
   }
-  lines.push(`👉 Apply here: ${applyUrl}`);
+  lines.push("👉 Apply here:");
+  lines.push(applyUrl);
   lines.push("");
   lines.push(tags);
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
