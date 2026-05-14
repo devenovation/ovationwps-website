@@ -45,6 +45,17 @@ service cloud.firestore {
     }
 
     // -----------------------------------------------------------------
+    // blogs
+    // -----------------------------------------------------------------
+    // Public reads must include `where("published", "==", true)` in the
+    // query. Authenticated admins can read drafts too and write freely.
+    match /blogs/{blogId} {
+      allow read: if resource.data.published == true
+                  || request.auth != null;
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // -----------------------------------------------------------------
     // taxonomies (master data: departments, locations, employment types)
     // -----------------------------------------------------------------
     // Used only by the admin console to manage the lists offered when

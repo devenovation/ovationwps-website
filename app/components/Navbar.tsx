@@ -56,10 +56,10 @@ export default function Navbar() {
               ))}
               <li>
                 <a
-                  href="#contact"
+                  href="/partner"
                   className="rounded-md bg-brand-red px-[18px] py-2 text-[0.85rem] font-medium text-white transition-colors duration-300 hover:bg-brand-red-dark"
                 >
-                  Get in Touch
+                  Partner with Us
                 </a>
               </li>
               <li>
@@ -106,11 +106,11 @@ export default function Navbar() {
           </a>
         ))}
         <a
-          href="#contact"
+          href="/partner"
           onClick={close}
           className="text-2xl font-bold text-navy hover:text-brand-red dark:text-white dark:hover:text-brand-red-soft"
         >
-          Contact
+          Partner with Us
         </a>
       </div>
     </>

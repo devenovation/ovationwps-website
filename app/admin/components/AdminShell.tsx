@@ -45,6 +45,19 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    href: "/admin/dashboard/blogs",
+    label: "Blogs",
+    match: (p) => p.startsWith("/admin/dashboard/blogs"),
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-[18px] w-[18px]">
+        <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4z" />
+        <path d="M8 8h8" />
+        <path d="M8 12h8" />
+        <path d="M8 16h5" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/dashboard/master-data",
     label: "Master Data",
     match: (p) => p.startsWith("/admin/dashboard/master-data"),

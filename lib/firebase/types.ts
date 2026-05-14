@@ -95,3 +95,33 @@ export function jobCityCountry(value: unknown): string {
   const short = [loc.city, loc.country].map((s) => s.trim()).filter(Boolean);
   return short.length > 0 ? short.join(", ") : formatJobLocation(value);
 }
+
+export interface Blog {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage: string;
+  author: string;
+  tags: string[];
+  published: boolean;
+  publishedAt: Timestamp | null;
+  createdAt: Timestamp | null;
+  updatedAt: Timestamp | null;
+}
+
+export type BlogInput = Omit<
+  Blog,
+  "id" | "createdAt" | "updatedAt" | "publishedAt"
+>;
+
+export function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}

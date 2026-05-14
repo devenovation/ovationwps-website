@@ -142,6 +142,7 @@ export const NAV_LINKS = [
   { href: "/#services", label: "Services" },
   { href: "/#depot", label: "Depot" },
   { href: "/#certifications", label: "Certifications" },
+  { href: "/blog", label: "Blog" },
   { href: "/careers", label: "Careers" },
 ];
 
@@ -477,6 +478,173 @@ export const COMPANY = {
   name: "Ovation",
   fullName: "Ovation Workplace Services",
 };
+
+export const PARTNER_HERO_IMAGE =
+  "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1400&q=80";
+
+export const PARTNER_HERO_STATS: { value: string; label: string }[] = [
+  { value: "52K+", label: "Vetted technicians" },
+  { value: "44+", label: "Countries covered" },
+  { value: "99.2%", label: "SLA achievement" },
+  { value: "83+", label: "Enterprise accounts" },
+];
+
+export const PARTNER_BENEFITS: { icon: ReactNode; title: string; body: string }[] = [
+  {
+    icon: IconGlobe,
+    title: "Global Coverage, One Contract",
+    body: "Consolidate field operations in 44+ countries under a single SLA — no more juggling regional MSPs or fragmented vendor stacks.",
+  },
+  {
+    icon: IconBolt,
+    title: "Rapid Mobilisation",
+    body: "Pre-vetted talent pools deploy in hours, not weeks. From break/fix dispatch to multi-site rollouts, we move at enterprise speed.",
+  },
+  {
+    icon: IconUsers,
+    title: "Co-Branded Delivery",
+    body: "White-label or co-branded engagements designed to extend your offering — your customer, your relationship, our execution muscle.",
+  },
+  {
+    icon: IconHeadset,
+    title: "Dedicated Partner Desk",
+    body: "Named program manager, joint QBRs, and a 24/7 escalation line. You always know who is on the other end of the phone.",
+  },
+  {
+    icon: IconRefresh,
+    title: "Flexible Commercial Models",
+    body: "Per-ticket, T&M, fixed-fee, or fully managed — we shape the deal around your margin profile, not the other way around.",
+  },
+  {
+    icon: IconBriefcase,
+    title: "Compliance & Trust",
+    body: "ISO 9001, ISO 27001, MBE-certified, with documented data residency, background checks, and supply-chain transparency.",
+  },
+];
+
+export const PARTNER_TIERS: {
+  name: string;
+  tagline: string;
+  description: string;
+  features: string[];
+  highlighted?: boolean;
+}[] = [
+  {
+    name: "Referral",
+    tagline: "Pass the lead, share the upside.",
+    description:
+      "Send opportunities our way and earn revenue share on closed engagements — minimal lift, no delivery responsibility.",
+    features: [
+      "Revenue share on closed deals",
+      "Co-marketing assets & one-pagers",
+      "Quarterly partner sync",
+      "Single point of contact",
+    ],
+  },
+  {
+    name: "Reseller",
+    tagline: "Sell Ovation services under your paper.",
+    description:
+      "Wrap Ovation field, depot, and dispatch services into your portfolio with white-label collateral and margin protection.",
+    features: [
+      "White-label SOWs & service catalogue",
+      "Tiered margin structure",
+      "Joint pre-sales engineering",
+      "Branded customer reporting",
+      "Dedicated channel manager",
+    ],
+    highlighted: true,
+  },
+  {
+    name: "Strategic Alliance",
+    tagline: "Build the practice together.",
+    description:
+      "For OEMs, integrators, and global MSPs running multi-year programs — joint go-to-market, embedded delivery, executive sponsorship.",
+    features: [
+      "Joint go-to-market planning",
+      "Embedded delivery & dispatch pods",
+      "Custom commercial constructs",
+      "Executive QBRs & roadmap access",
+      "First-look on new geographies",
+    ],
+  },
+];
+
+export const PARTNER_PROCESS: { step: string; title: string; body: string }[] = [
+  {
+    step: "01",
+    title: "Discover",
+    body: "30-minute intro to understand your customer base, geographies, and where Ovation fits inside your delivery stack.",
+  },
+  {
+    step: "02",
+    title: "Design",
+    body: "We co-build the commercial model, SLAs, and engagement playbook — sized to your first 12 months of pipeline.",
+  },
+  {
+    step: "03",
+    title: "Deploy",
+    body: "Partner agreement signed, channel manager onboarded, and your first joint pursuit kicked off within 30 days.",
+  },
+  {
+    step: "04",
+    title: "Scale",
+    body: "Quarterly business reviews, pipeline reviews, and shared dashboards keep the partnership compounding year over year.",
+  },
+];
+
+export const PARTNER_AUDIENCES: { icon: ReactNode; title: string; body: string }[] = [
+  {
+    icon: IconBuilding,
+    title: "Global MSPs",
+    body: "Plug gaps in your geographic coverage or tech depth without standing up new field operations.",
+  },
+  {
+    icon: IconServer,
+    title: "OEMs & Hardware Vendors",
+    body: "Outsource warranty, install-base, and refresh work to a partner with depot and on-site coverage in one stack.",
+  },
+  {
+    icon: IconCode,
+    title: "Systems Integrators",
+    body: "Extend your program delivery with field hands, dispatch, and logistics that scale with your largest customers.",
+  },
+  {
+    icon: IconLink,
+    title: "Software & SaaS",
+    body: "Offer your customers a managed onboarding, install, or refresh service co-delivered by Ovation.",
+  },
+];
+
+export const PARTNER_TESTIMONIAL = {
+  quote:
+    "Ovation has become an extension of our delivery team. When we win a global rollout, they are in the room from day one — same playbook, same standards, one customer experience.",
+  name: "Strategic Channel Partner",
+  role: "VP of Global Services · Fortune 500 MSP",
+};
+
+export const PARTNER_FAQS: { q: string; a: string }[] = [
+  {
+    q: "How quickly can a new partner go live?",
+    a: "Most partners are signed and trained within 30 days. For referral arrangements it is often quicker — we have onboarded partners in under a week when there is an active opportunity on the table.",
+  },
+  {
+    q: "Will you compete with us downstream?",
+    a: "No. Channel-sourced opportunities are protected by deal registration. We do not sell directly into accounts that came through a partner, and our field teams operate on partner-branded playbooks where required.",
+  },
+  {
+    q: "Which regions do you cover?",
+    a: "Active delivery in 44+ countries across North America, EMEA, APAC, and LATAM, with depot and dispatch hubs in the US and India. We add new geographies on demand for strategic alliance partners.",
+  },
+  {
+    q: "Can you white-label customer-facing reporting?",
+    a: "Yes. Reseller and strategic partners get branded portals, ticket reporting, and SLA dashboards. Your customers see your brand — Ovation runs the engine underneath.",
+  },
+  {
+    q: "What commercial models do you support?",
+    a: "Per-ticket dispatch, time & materials, fixed-fee managed services, and hybrid constructs. We shape pricing around your margin profile and the customer's buying preference.",
+  },
+];
 
 export const CAREERS_HERO_IMAGE =
   "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=80";
