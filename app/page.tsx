@@ -7,6 +7,7 @@ import Leadership from "./components/Leadership";
 import Services from "./components/Services";
 import Depot from "./components/Depot";
 import Certifications from "./components/Certifications";
+import Locations from "./components/Locations";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
@@ -24,6 +25,7 @@ export default function Home() {
         <Leadership />
         <Certifications />
         <Contact />
+        <Locations />
       </main>
       <Footer />
     </>

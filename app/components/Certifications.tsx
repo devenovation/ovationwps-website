@@ -30,7 +30,16 @@ export default function Certifications() {
               <div
                 className={`flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full ring-8 transition-transform duration-300 group-hover:scale-105 ${c.iconBg} ${c.ringColor} [&>svg]:h-8 [&>svg]:w-8 ${c.iconColor}`}
               >
-                {c.icon}
+                {c.iconImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={c.iconImage}
+                    alt={`${c.title} logo`}
+                    className="h-10 w-10 object-contain"
+                  />
+                ) : (
+                  c.icon
+                )}
               </div>
               <span className="rounded-full border border-ink-200 bg-ink-100 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.13em] text-ink-700 dark:border-white/15 dark:bg-white/10 dark:text-white/70">
                 {c.label}

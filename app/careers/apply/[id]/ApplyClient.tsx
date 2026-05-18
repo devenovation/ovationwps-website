@@ -18,6 +18,15 @@ const URL_RE = /^(https?:\/\/)[^\s/$.?#].[^\s]*$/i;
 const PHONE_RE = /^\+?[0-9 ()\-.]{7,}$/;
 const LINKEDIN_RE = /linkedin\.com\/(in|pub)\//i;
 
+const RESUME_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const RESUME_ACCEPT =
+  ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const RESUME_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
 const inputClass =
   "w-full rounded-lg border-[1.5px] border-ink-200 bg-white px-3.5 py-2.5 text-[0.92rem] text-navy outline-none transition-all duration-300 focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(179,9,32,0.1)] dark:border-white/15 dark:bg-white/5 dark:text-white dark:focus:border-brand-red-soft dark:focus:shadow-[0_0_0_3px_rgba(232,74,95,0.18)]";
 const inputErrClass =
@@ -80,9 +89,6 @@ function validate(state: FormState): Errors {
     e.linkedinUrl = "Enter a valid URL starting with https://";
   else if (!LINKEDIN_RE.test(state.linkedinUrl.trim()))
     e.linkedinUrl = "Must be a linkedin.com/in/ profile URL.";
-  if (!state.resumeUrl.trim()) e.resumeUrl = "Resume link is required.";
-  else if (!URL_RE.test(state.resumeUrl.trim()))
-    e.resumeUrl = "Enter a valid URL (Google Drive, Dropbox, etc.).";
   if (state.portfolioUrl.trim() && !URL_RE.test(state.portfolioUrl.trim()))
     e.portfolioUrl = "Enter a valid URL or leave it empty.";
   if (state.experienceLevel === "experienced") {
@@ -121,6 +127,12 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+
+  const pickResume = (file: File | null) => {
+    setResumeFile(file);
+    if (errors.resumeUrl) setErrors((prev) => ({ ...prev, resumeUrl: undefined }));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -156,6 +168,13 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
     e.preventDefault();
     if (!job) return;
     const v = validate(form);
+    if (!resumeFile) {
+      v.resumeUrl = "Please attach your resume (PDF or Word).";
+    } else if (!RESUME_TYPES.includes(resumeFile.type)) {
+      v.resumeUrl = "Resume must be a PDF, DOC, or DOCX file.";
+    } else if (resumeFile.size > RESUME_MAX_BYTES) {
+      v.resumeUrl = "Resume must be 5 MB or smaller.";
+    }
     setErrors(v);
     if (Object.keys(v).length > 0) {
       const count = Object.keys(v).length;
@@ -172,6 +191,36 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
 
     setSubmitting(true);
     try {
+      let resumeUrl: string;
+      try {
+        const fd = new FormData();
+        fd.append("file", resumeFile as File);
+        const up = await fetch("/api/upload-resume", {
+          method: "POST",
+          body: fd,
+        });
+        const data = (await up.json().catch(() => ({}))) as {
+          url?: string;
+          error?: string;
+        };
+        if (!up.ok || !data.url) {
+          throw new Error(data.error || "Could not upload your resume.");
+        }
+        resumeUrl = data.url;
+      } catch (err) {
+        setErrors((prev) => ({
+          ...prev,
+          resumeUrl:
+            err instanceof Error ? err.message : "Could not upload your resume.",
+        }));
+        toast.error(
+          "Resume upload failed",
+          err instanceof Error ? err.message : "Please try again.",
+        );
+        setSubmitting(false);
+        return;
+      }
+
       const payload: ApplicationInput = {
         jobId: job.id,
         jobTitle: job.title,
@@ -182,7 +231,7 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
         city: form.city.trim(),
         country: form.country.trim(),
         linkedinUrl: form.linkedinUrl.trim(),
-        resumeUrl: form.resumeUrl.trim(),
+        resumeUrl,
         portfolioUrl: form.portfolioUrl.trim(),
         currentCompany:
           form.experienceLevel === "fresher"
@@ -436,19 +485,22 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
               />
             </Field>
             <Field
-              label="Resume link"
+              label="Resume"
               id="resumeUrl"
               error={errors.resumeUrl}
-              hint="Public Google Drive, Dropbox, or hosted PDF."
+              hint={
+                resumeFile
+                  ? `${resumeFile.name} · ${(resumeFile.size / 1024 / 1024).toFixed(2)} MB`
+                  : "PDF, DOC, or DOCX — up to 5 MB."
+              }
               required
             >
               <input
                 id="resumeUrl"
-                type="url"
-                placeholder="https://drive.google.com/..."
-                value={form.resumeUrl}
-                onChange={(e) => update("resumeUrl", e.target.value)}
-                className={errors.resumeUrl ? inputErrClass : inputClass}
+                type="file"
+                accept={RESUME_ACCEPT}
+                onChange={(e) => pickResume(e.target.files?.[0] ?? null)}
+                className={`${errors.resumeUrl ? inputErrClass : inputClass} cursor-pointer file:mr-3 file:rounded-md file:border-0 file:bg-brand-red file:px-3 file:py-1.5 file:text-[0.82rem] file:font-semibold file:text-white hover:file:bg-brand-red-dark`}
               />
             </Field>
             <Field

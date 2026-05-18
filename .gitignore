@@ -26,6 +26,9 @@
 # production
 /build
 
+# uploaded resumes (stored on the server, never committed)
+/uploads
+
 # misc
 .DS_Store
 *.pem

@@ -386,6 +386,8 @@ export type Cert = {
   iconColor: string;
   ringColor: string;
   icon: ReactNode;
+  /** When set, this logo image is shown instead of the `icon` SVG. */
+  iconImage?: string;
   label: string;
   title: string;
   desc: string;
@@ -397,6 +399,7 @@ export const CERTS: Cert[] = [
     iconColor: "text-[#1d4ed8] dark:text-[#93c5fd]",
     ringColor: "ring-[#1d4ed8]/15 dark:ring-[#93c5fd]/20",
     icon: IconAward,
+    iconImage: "/iso9001.svg",
     label: "Quality",
     title: "ISO 9001:2015",
     desc: "Quality Management System — certified processes for consistent, client-centric service delivery across all operations.",
@@ -406,6 +409,7 @@ export const CERTS: Cert[] = [
     iconColor: "text-[#047857] dark:text-[#6ee7b7]",
     ringColor: "ring-[#047857]/15 dark:ring-[#6ee7b7]/20",
     icon: IconShieldCheck,
+    iconImage: "/ISO27001.svg",
     label: "Security",
     title: "ISO 27001:2022",
     desc: "Information Security Management — enterprise-grade data protection protocols, access controls, and security governance.",
@@ -415,9 +419,49 @@ export const CERTS: Cert[] = [
     iconColor: "text-[#b45309] dark:text-[#fcd34d]",
     ringColor: "ring-[#b45309]/15 dark:ring-[#fcd34d]/20",
     icon: IconBadgeCheck,
+    iconImage: "/nmsdc.jpg",
     label: "Diversity",
     title: "MBE Certified",
     desc: "Minority Business Enterprise — verified diverse supplier helping clients meet and exceed supplier diversity commitments.",
+  },
+];
+
+export type OfficeLocation = {
+  city: string;
+  address: string[];
+};
+
+export const HEADQUARTERS: OfficeLocation = {
+  city: "New Jersey, USA",
+  address: ["55 Union Place #237", "Summit, NJ 07901"],
+};
+
+export const DELIVERY_CENTERS: OfficeLocation[] = [
+  {
+    city: "Toronto, Canada",
+    address: ["2 Queen Street East, Suite 1500,", "Toronto, Ontario, M5C 3G5, Canada"],
+  },
+  {
+    city: "Noida, India",
+    address: [
+      "Unit No. 1101, 11th Floor, Tower-1, Assotech",
+      "Business Cresterra,",
+      "Plot No. 22, Sector-135, Noida 201305, Distt.",
+      "Gautam Budh Nagar, U.P",
+    ],
+  },
+  {
+    city: "Mumbai, India",
+    address: [
+      "906, 93 East Building,",
+      "304, Mahakali Caves Rd, Shanti Nagar,",
+      "Andheri East,",
+      "Mumbai, Maharashtra 400093",
+    ],
+  },
+  {
+    city: "Pune",
+    address: ["B - 901, Kapil Abhijat, Commins Circle,", "Kothrud,", "Pune, Maharashtra - 411038"],
   },
 ];
 

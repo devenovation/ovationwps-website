@@ -64,7 +64,7 @@ function validate(
   return { ok: true, data: b as unknown as ApplicationInput };
 }
 
-function hrEmailHtml(a: ApplicationInput): string {
+function hrEmailHtml(a: ApplicationInput, resumeUrl: string): string {
   const e = escapeHtml;
   const row = (label: string, value: string) =>
     `<tr><td style="padding:8px 14px;border-bottom:1px solid #eef0f4;color:#5b6478;font-size:13px;width:170px;">${e(label)}</td>` +
@@ -89,7 +89,7 @@ function hrEmailHtml(a: ApplicationInput): string {
       ${row("Phone", e(a.phone))}
       ${row("Location", `${e(a.city)}, ${e(a.country)}`)}
       ${linkRow("LinkedIn", a.linkedinUrl)}
-      ${linkRow("Resume", a.resumeUrl)}
+      ${linkRow("Resume", resumeUrl)}
       ${a.portfolioUrl ? linkRow("Portfolio", a.portfolioUrl) : ""}
       ${row("Current company", e(a.currentCompany || "—"))}
       ${row("Current title", e(a.currentTitle || "—"))}
@@ -160,6 +160,15 @@ export async function POST(req: Request) {
     );
   }
 
+  // Resume is stored as a relative "/api/resume/<file>" path; make it
+  // absolute so HR can open it straight from the email.
+  const base = (
+    process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin
+  ).replace(/\/$/, "");
+  const resumeUrl = /^https?:\/\//i.test(a.resumeUrl)
+    ? a.resumeUrl
+    : `${base}${a.resumeUrl.startsWith("/") ? "" : "/"}${a.resumeUrl}`;
+
   const resend = new Resend(apiKey);
 
   try {
@@ -169,7 +178,7 @@ export async function POST(req: Request) {
         to,
         replyTo: a.email,
         subject: `New application — ${a.jobTitle} — ${a.fullName}`,
-        html: hrEmailHtml(a),
+        html: hrEmailHtml(a, resumeUrl),
       }),
       resend.emails.send({
         from,
