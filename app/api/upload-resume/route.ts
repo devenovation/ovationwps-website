@@ -63,9 +63,17 @@ export async function POST(req: Request) {
     const bytes = Buffer.from(await file.arrayBuffer());
     await writeFile(path.join(dir, filename), bytes);
   } catch (err) {
-    console.error("[upload-resume] failed to store file:", err);
+    const e = err as NodeJS.ErrnoException;
+    console.error(
+      `[upload-resume] failed to store file: code=${e.code} errno=${e.errno} ` +
+        `dir=${dir} runAsUid=${process.getuid?.()} message=${e.message}`,
+    );
     return NextResponse.json(
-      { error: "Could not store the file. Please try again." },
+      {
+        error: "Could not store the file. Please try again.",
+        // Surfaced to help diagnose server-side storage failures.
+        code: e.code ?? "EUNKNOWN",
+      },
       { status: 500 },
     );
   }
