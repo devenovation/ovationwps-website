@@ -18,7 +18,7 @@ const URL_RE = /^(https?:\/\/)[^\s/$.?#].[^\s]*$/i;
 const PHONE_RE = /^\+?[0-9 ()\-.]{7,}$/;
 const LINKEDIN_RE = /linkedin\.com\/(in|pub)\//i;
 
-const RESUME_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const RESUME_MAX_BYTES = 4 * 1024 * 1024; // 4 MB
 const RESUME_ACCEPT =
   ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const RESUME_TYPES = [
@@ -173,7 +173,7 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
     } else if (!RESUME_TYPES.includes(resumeFile.type)) {
       v.resumeUrl = "Resume must be a PDF, DOC, or DOCX file.";
     } else if (resumeFile.size > RESUME_MAX_BYTES) {
-      v.resumeUrl = "Resume must be 5 MB or smaller.";
+      v.resumeUrl = "Resume must be 4 MB or smaller.";
     }
     setErrors(v);
     if (Object.keys(v).length > 0) {
@@ -191,36 +191,6 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
 
     setSubmitting(true);
     try {
-      let resumeUrl: string;
-      try {
-        const fd = new FormData();
-        fd.append("file", resumeFile as File);
-        const up = await fetch("/api/upload-resume", {
-          method: "POST",
-          body: fd,
-        });
-        const data = (await up.json().catch(() => ({}))) as {
-          url?: string;
-          error?: string;
-        };
-        if (!up.ok || !data.url) {
-          throw new Error(data.error || "Could not upload your resume.");
-        }
-        resumeUrl = data.url;
-      } catch (err) {
-        setErrors((prev) => ({
-          ...prev,
-          resumeUrl:
-            err instanceof Error ? err.message : "Could not upload your resume.",
-        }));
-        toast.error(
-          "Resume upload failed",
-          err instanceof Error ? err.message : "Please try again.",
-        );
-        setSubmitting(false);
-        return;
-      }
-
       const payload: ApplicationInput = {
         jobId: job.id,
         jobTitle: job.title,
@@ -231,7 +201,9 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
         city: form.city.trim(),
         country: form.country.trim(),
         linkedinUrl: form.linkedinUrl.trim(),
-        resumeUrl,
+        // The resume is emailed as an attachment, not stored, so there is
+        // no URL to record on the application.
+        resumeUrl: "",
         portfolioUrl: form.portfolioUrl.trim(),
         currentCompany:
           form.experienceLevel === "fresher"
@@ -256,10 +228,12 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
       await createApplication(payload);
       let emailWarning: string | null = null;
       try {
+        const fd = new FormData();
+        fd.append("payload", JSON.stringify(payload));
+        fd.append("resume", resumeFile as File);
         const res = await fetch("/api/applications", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: fd,
         });
         if (!res.ok) {
           const data = (await res.json().catch(() => ({}))) as {
@@ -491,7 +465,7 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
               hint={
                 resumeFile
                   ? `${resumeFile.name} · ${(resumeFile.size / 1024 / 1024).toFixed(2)} MB`
-                  : "PDF, DOC, or DOCX — up to 5 MB."
+                  : "PDF, DOC, or DOCX — up to 4 MB."
               }
               required
             >

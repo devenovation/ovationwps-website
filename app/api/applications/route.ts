@@ -14,7 +14,6 @@ const REQUIRED_STRING_FIELDS: (keyof ApplicationInput)[] = [
   "city",
   "country",
   "linkedinUrl",
-  "resumeUrl",
   "expectedSalary",
   "workAuthorization",
   "coverLetter",
@@ -22,6 +21,16 @@ const REQUIRED_STRING_FIELDS: (keyof ApplicationInput)[] = [
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Vercel serverless functions cap the request body at ~4.5 MB; keep the
+// resume comfortably under that since it rides along in the same request.
+const RESUME_MAX_BYTES = 4 * 1024 * 1024; // 4 MB
+const RESUME_TYPES: Record<string, string> = {
+  "application/pdf": "pdf",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    "docx",
+};
 
 function escapeHtml(s: string): string {
   return s
@@ -64,7 +73,7 @@ function validate(
   return { ok: true, data: b as unknown as ApplicationInput };
 }
 
-function hrEmailHtml(a: ApplicationInput, resumeUrl: string): string {
+function hrEmailHtml(a: ApplicationInput, resumeFilename: string): string {
   const e = escapeHtml;
   const row = (label: string, value: string) =>
     `<tr><td style="padding:8px 14px;border-bottom:1px solid #eef0f4;color:#5b6478;font-size:13px;width:170px;">${e(label)}</td>` +
@@ -89,7 +98,7 @@ function hrEmailHtml(a: ApplicationInput, resumeUrl: string): string {
       ${row("Phone", e(a.phone))}
       ${row("Location", `${e(a.city)}, ${e(a.country)}`)}
       ${linkRow("LinkedIn", a.linkedinUrl)}
-      ${linkRow("Resume", resumeUrl)}
+      ${row("Resume", `📎 ${e(resumeFilename)} <span style="color:#5b6478;">(attached to this email)</span>`)}
       ${a.portfolioUrl ? linkRow("Portfolio", a.portfolioUrl) : ""}
       ${row("Current company", e(a.currentCompany || "—"))}
       ${row("Current title", e(a.currentTitle || "—"))}
@@ -133,11 +142,21 @@ function candidateEmailHtml(a: ApplicationInput): string {
 }
 
 export async function POST(req: Request) {
+  let form: FormData;
+  try {
+    form = await req.formData();
+  } catch {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
+
   let body: unknown;
   try {
-    body = await req.json();
+    body = JSON.parse(String(form.get("payload") ?? ""));
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid application payload." },
+      { status: 400 },
+    );
   }
 
   const v = validate(body);
@@ -145,6 +164,33 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: v.error }, { status: 400 });
   }
   const a = v.data;
+
+  // The resume travels with the request and is attached to the HR email —
+  // nothing is written to disk (Vercel's filesystem is read-only).
+  const resume = form.get("resume");
+  if (!(resume instanceof File) || resume.size === 0) {
+    return NextResponse.json(
+      { error: "Resume file is required." },
+      { status: 400 },
+    );
+  }
+  const resumeExt = RESUME_TYPES[resume.type];
+  if (!resumeExt) {
+    return NextResponse.json(
+      { error: "Resume must be a PDF, DOC, or DOCX file." },
+      { status: 400 },
+    );
+  }
+  if (resume.size > RESUME_MAX_BYTES) {
+    return NextResponse.json(
+      { error: "Resume must be 4 MB or smaller." },
+      { status: 413 },
+    );
+  }
+  const resumeFilename = `${a.fullName.replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "") || "resume"}.${resumeExt}`;
+  const resumeContent = Buffer.from(await resume.arrayBuffer()).toString(
+    "base64",
+  );
 
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.MAIL_FROM;
@@ -160,15 +206,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // Resume is stored as a relative "/api/resume/<file>" path; make it
-  // absolute so HR can open it straight from the email.
-  const base = (
-    process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin
-  ).replace(/\/$/, "");
-  const resumeUrl = /^https?:\/\//i.test(a.resumeUrl)
-    ? a.resumeUrl
-    : `${base}${a.resumeUrl.startsWith("/") ? "" : "/"}${a.resumeUrl}`;
-
   const resend = new Resend(apiKey);
 
   try {
@@ -178,7 +215,8 @@ export async function POST(req: Request) {
         to,
         replyTo: a.email,
         subject: `New application — ${a.jobTitle} — ${a.fullName}`,
-        html: hrEmailHtml(a, resumeUrl),
+        html: hrEmailHtml(a, resumeFilename),
+        attachments: [{ filename: resumeFilename, content: resumeContent }],
       }),
       resend.emails.send({
         from,
