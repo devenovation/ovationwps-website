@@ -191,6 +191,38 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
 
     setSubmitting(true);
     try {
+      // Store the resume on the server first so it has a stable URL the
+      // admin panel can link to. The same file is also emailed below.
+      let resumeUrl: string;
+      try {
+        const fd = new FormData();
+        fd.append("file", resumeFile as File);
+        const up = await fetch("/api/upload-resume", {
+          method: "POST",
+          body: fd,
+        });
+        const data = (await up.json().catch(() => ({}))) as {
+          url?: string;
+          error?: string;
+        };
+        if (!up.ok || !data.url) {
+          throw new Error(data.error || "Could not upload your resume.");
+        }
+        resumeUrl = data.url;
+      } catch (err) {
+        setErrors((prev) => ({
+          ...prev,
+          resumeUrl:
+            err instanceof Error ? err.message : "Could not upload your resume.",
+        }));
+        toast.error(
+          "Resume upload failed",
+          err instanceof Error ? err.message : "Please try again.",
+        );
+        setSubmitting(false);
+        return;
+      }
+
       const payload: ApplicationInput = {
         jobId: job.id,
         jobTitle: job.title,
@@ -201,9 +233,9 @@ export default function ApplyClient({ jobId }: { jobId: string }) {
         city: form.city.trim(),
         country: form.country.trim(),
         linkedinUrl: form.linkedinUrl.trim(),
-        // The resume is emailed as an attachment, not stored, so there is
-        // no URL to record on the application.
-        resumeUrl: "",
+        // Server-stored URL (admin panel links here); the same file is
+        // also attached to the HR email below.
+        resumeUrl,
         portfolioUrl: form.portfolioUrl.trim(),
         currentCompany:
           form.experienceLevel === "fresher"
